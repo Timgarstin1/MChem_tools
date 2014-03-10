@@ -7,7 +7,7 @@ from MChem_tools_II import *
 
 #---------------------------------------- SET PLOTTING HERE ----------------------------------------
 # Plot out data?
-#print_diags=True
+#debug=True
 
 # Where are the model files? And What Species do you want to plot?
 wd='/home/jts507/MChem/2yearrun/Run/plane_flight_logs/plane.log.200*'
