@@ -18,39 +18,39 @@ def open_ctm_bpch(wd, bpch_fname='ctm.bpch'):
 # --------------                                                                                 
 # 2.25 - get np array (4D) of ctm.bpch ( lon,lat , alt,time)                                     
 # --------------                                                                                
-def get_gc_data_np(ctm_f, species,category="IJ-AVG-$", print_diags=False):
-    if (print_diags):
+def get_gc_data_np(ctm_f, species,category="IJ-AVG-$", debug=False):
+    if (debug):
         print 'called get_np_gc_4D_diags'
     diagnostics = ctm_f.filter(name=species, category=category)
     for diag in diagnostics:
         scalar = (diag.values[:,:,:])[:,:,:,np.newaxis]
-        if (print_diags):
+        if (debug):
             print diag.name ,'len(scalar)',len(scalar), 'type(scalar)' , type(scalar) , 'diag.scale', diag.scale, 'scalar.shape', scalar.shape,'diag.unit',diag.unit
         try:
             np_scalar = np.concatenate( (np_scalar,scalar), axis=3 )
         except NameError:
             np_scalar = scalar
-        if (print_diags):
+        if (debug):
             print 'np_scalar' , type(np_scalar), len(np_scalar), np_scalar.shape, 'scalar', type(scalar), len(scalar), scalar.shape
     return np_scalar
 
 # --------------
 # 2.24 - get air mass (4D) np.array
 # -------------       
-def get_air_mass_np(ctm_f, times=None, print_diags=False):
-    if (print_diags):
+def get_air_mass_np(ctm_f, times=None, debug=False):
+    if (debug):
         print 'called get air mass'
 #    air_mass_list=[]                                                                                                                                                                                               
     diagnostics = ctm_f.filter(name='AD', category="BXHGHT-$",time=times)
     for diag in diagnostics:
         scalar = np.array( diag.values[:,:,:] )[:,:,:,np.newaxis]              # Grab data                                                                                                                          
-        if (print_diags):
+        if (debug):
             print diag.name ,'len(scalar)',len(scalar), 'type(scalar)' , type(scalar) , 'diag.scale', diag.scale, 'scalar.shape', scalar.shape,'diag.unit',diag.unit
         try:
             np_scalar = np.concatenate( (np_scalar, scalar), axis=3 )
         except NameError:
             np_scalar = scalar
-        if (print_diags):
+        if (debug):
             print 'np_scalar' , type(np_scalar), len(np_scalar), np_scalar.shape, 'scalar', type(scalar), len(scalar), scalar.shape
     return np_scalar
 
@@ -60,8 +60,8 @@ def get_air_mass_np(ctm_f, times=None, print_diags=False):
 def plot_geos_alt_slice(scalar, **Kwargs):
     # Setup slices                                                                                                 
     # Grid/Mesh values for Lat, lon, & alt                                                                         
-    lon = gchemgrid('c_lon_4x5')
-    lat = gchemgrid('c_lat_4x5')
+    lon = gchemgrid('e_lon_4x5')
+    lat = gchemgrid('e_lat_4x5')
     alt = gchemgrid('c_km_geos5_r')#'e_km_geos5_r')#'c_km_geos5_r')                                                
     units= 'ppbv'#diag.unit                                                                                        
     # Setup mesh grids                                                                                             
@@ -130,7 +130,7 @@ def plot_geos_alt_slice(scalar, **Kwargs):
 #This module contains (some) grid coordinates used with GEOS-Chem as numpy
 #arrays
 
-def gchemgrid(input_parameter, print_diags=False):
+def gchemgrid(input_parameter, debug=False):
 
     c_lon_4x5 = np.array([-180., -175., -170., 
           -165., -160., -155., -150., -145., -140.,
@@ -395,7 +395,7 @@ def gchemgrid(input_parameter, print_diags=False):
             2.86400000e+00,   1.13400000e+00,   4.14000000e-01,
             1.39000000e-01,   3.80000000e-02])
 
-    if (print_diags):
+    if (debug):
         print 'gchemgrid called'
 
     parameter_list=[c_lon_4x5 ,    e_lon_4x5,    c_lat_4x5,    e_lat_4x5,
@@ -445,7 +445,7 @@ def process_files_to_read(files, location, big, names):
 # 1.01 - date specific (Year,Month,Day) planeflight output reader - tms
 # -------------
 
-def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot_all_data=False,print_diags=True, **kwargs):
+def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot_all_data=False,debug=True, **kwargs):
     print 'readfile called'
     big, names = [],[]
              # sort for choosen years/months
@@ -456,7 +456,7 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
             for year in range(len(years_to_use)):
                 if (("{0}".format(years_to_use[year])) in (files)) :
                     # is it not the last year specificied?
-                    if (print_diags):
+                    if (debug):
                         print 'years_to_use[year]', years_to_use[year], 'years_to_use[-1]', years_to_use[-1]
                     if (not (years_to_use[year] == years_to_use[-1])):
                         # just read all years upto point uptyo final year
@@ -466,7 +466,7 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
                     if (years_to_use[year] == years_to_use[-1]):
                         # Plot months exceot last one
                         for month in range(len(months_to_use)):                                                                                                  
-                            if (print_diags):
+                            if (debug):
                                 print 'months_to_use[month]', months_to_use[month], 'months_to_use[-1]', months_to_use[-1], 'months_to_use', months_to_use, 'type(months_to_use)', type(months_to_use)
                             if (("{0}{1}".format(years_to_use[year],months_to_use[month])) in files) :  
                                 if (not (months_to_use[month] == months_to_use[-1])):
@@ -476,10 +476,10 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
                                         # For last month, plot days upto last day
                                     for day in range(len(days_to_use)):                                                                                          
                                         if (("{0}{1}{2}".format(years_to_use[year],months_to_use[month],days_to_use[day])) in files) : 
-                                            if (print_diags):
+                                            if (debug):
                                                 print 'days_to_use[day]', days_to_use[day], 'days_to_use[-1]', days_to_use[-1]
                                             big, names=process_files_to_read(files, location,big, names)
-                                            if (print_diags):
+                                            if (debug):
                                                 print 'i got to line 108'
                                                 print 'readfile read big of size: ', len(big)
                                                 
