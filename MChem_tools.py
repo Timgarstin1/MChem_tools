@@ -525,4 +525,55 @@ def what_species_am_i(input_species) :
             output_species=tracer_library[input_species]
             return output_species
 
+# -------------
+# 1.04 -  return contiguous numpy 4D array (lon,lat , alt,time) for given dates in PyGChem format (datetime.datetime, datetime.datetime)
+# -------------
+def np_ctm_4_dates(wd, start, end, spec='O3', cat="IJ-AVG-$", debug=False  ):
+    # get all ctm.bpch files
+    try:
+        ctm_l = glob.glob(wd +'/ctm*')
+    except:
+        print 'ERROR @ wd: {}'.format(wd)
+    if (debug):
+        print ctm_l
+    # open all of them
+    ctm_l = [ open_ctm_bpch( wd, bpch_fname=i.split('/')[-1] ) for ii, i in enumerate(ctm_l) ]
 
+    # test to see if they contain months requested
+    for month in range( int((end-start).days/31) ):
+        start_month = int(start.strftime("%m" ))
+        if (debug):
+            print month, ( add_months(start,month), add_months(start,month+1) )
+        for ctm in ctm_l:
+            diagnostics = ctm.filter(name=spec, category=cat)
+#            if (debug):
+#                print 'diagnostics', diagnostics , spec, cat
+            for diag in diagnostics:
+                if (debug):
+                    print '-'*10, "'{}' ?= '{}'".format(diag.times, ( add_months(start,month), add_months(start,month+1)) ),  (diag.times == ( add_months(start,month), add_months(start,month+1))  )
+                if (diag.times == ( add_months(start,month), add_months(start,month+1))  ):
+                    scalar = (diag.values[:,:,:])[:,:,:,np.newaxis]
+                    if (debug):
+                        print diag.name ,'len(scalar)',len(scalar), 'type(scalar)' , type(scalar) , 'diag.scale', diag.scale, 'scalar.shape', scalar.shape,'diag.unit',diag.unit
+                    try:
+                        np_scalar = np.concatenate( (np_scalar,scalar), axis=3 )
+                    except NameError:
+                        np_scalar = scalar
+                    if (debug):
+                        print 'np_scalar' , type(np_scalar), len(np_scalar), np_scalar.shape, 'scalar', type(scalar), len(scalar), scalar.shape
+                else:
+                    print 'Month not included:{} '.format( diag.times )
+    try:
+        return np_scalar
+    except:
+        print 'ERROR @ return np_salar in np_ctm_4_dates'
+
+# -------------
+# 1.05 -  incremental increase datetime by given months - credit: Dave Webb
+# -------------
+def add_months(sourcedate,months):
+    month = sourcedate.month - 1 + months
+    year = sourcedate.year + month / 12
+    month = month % 12 + 1
+    day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+    return datetime.datetime(year,month,day)
