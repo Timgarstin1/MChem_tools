@@ -1,3 +1,5 @@
+#!/usr/bin/python                                                                                                                                                                                                 
+
 # modules
 from MChem_tools import *
 import numpy as np
