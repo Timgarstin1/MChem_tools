@@ -539,7 +539,7 @@ def np_ctm_4_dates(wd, start, end, spec='O3', cat="IJ-AVG-$", debug=False  ):
     ctm_l = [ open_ctm_bpch( wd, bpch_fname=i.split('/')[-1] ) for ii, i in enumerate(ctm_l) ]
 
     # test to see if they contain months requested
-    for month in range( int((end-start).days/31) ):
+    for month in range( int( np.round( (end-start).days/31.0)) ):
         start_month = int(start.strftime("%m" ))
         if (debug):
             print month, ( add_months(start,month), add_months(start,month+1) )
