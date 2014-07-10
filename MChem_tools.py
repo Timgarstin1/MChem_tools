@@ -495,34 +495,32 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
 # -------------
 # translate year to "since2006" function
 def year_to_since_2006(model):
-            year=(model[:,0]//10000)
-            month=((model[:,0]-year*10000)//100)
-            day=(model[:,0]-year*10000-month*100)
-            hour=model[:,1]//100
-            min=(model[:,1]-hour*100)
-            doy=[ datetime.datetime(np.int(year[i]),np.int(month[i]),np.int(day[i]),\
-                                        np.int(hour[i]),np.int(min[i]),0)- \
-                      datetime.datetime(2006,1,1,0,0,0) \
-                      for i in range(len(year))]
-            since2006=[doy[i].days+doy[i].seconds/(24.*60.*60.) for i in range(len(doy))]
-            return since2006
+    year=(model[:,0]//10000)
+    month=((model[:,0]-year*10000)//100)
+    day=(model[:,0]-year*10000-month*100)
+    hour=model[:,1]//100
+    min=(model[:,1]-hour*100)
+    doy=[ datetime.datetime(np.int(year[i]),np.int(month[i]),np.int(day[i]),\
+                                np.int(hour[i]),np.int(min[i]),0)- \
+              datetime.datetime(2006,1,1,0,0,0) \
+              for i in range(len(year))]
+    since2006=[doy[i].days+doy[i].seconds/(24.*60.*60.) for i in range(len(doy))]
+    return since2006
 
 # --------------
 # 1.09 - What GEOS-Chem (GC) Specie am i? takes TRA_## & returns GC ID or other wayround 
 # -------------
-#      1st - gc_to_tra = True (GC to TRA_##) or (TRA_## to GC) - HASHED OUT
-#        2nd - input specie
-def what_species_am_i(input_species) :
+#def what_species_am_i(input_species) :
 
 # tracer library
-            tracer_library={'O3':'O3','CO':'CO','NO':'NO','TRA_53': 'CH3Br', 'TRA_52': 'CH2Br2', 'TRA_51': 'CHBr3', 'TRA_50': 'BrNO3', 'TRA_55': 'ClNO2', 'TRA_54': 'Cl', 'TRA_48': 'HBr', 'TRA_49': 'BrNO2', 'TRA_44': 'Br2', 'TRA_45': 'Br', 'TRA_46': 'BrO', 'TRA_47': 'HOBr', 'TRA_72': 'I2O5', 'TRA_78': 'OClO', 'TRA_66': 'I', 'TRA_67': 'HIO3','CH3Br': 'REA_53', 'HOBr': 'REA_47', 'CHBr3': 'REA_51', 'Br2': 'REA_44', 'BrO': 'REA_46', 'Br': 'REA_45', 'CH2Br2': 'REA_52', 'BrNO2': 'REA_49', 'BrNO3': 'REA_50', 'HBr': 'REA_48','NO': 'NO', 'O3': 'O3', 'CH3Br': 'TRA_53', 'HI': 'TRA_58', 'Br': 'TRA_45', 'BrO': 'TRA_46', 'BrNO2': 'TRA_49', 'BrNO3': 'TRA_50', 'HOBr': 'TRA_47', 'Br2': 'TRA_44', 'Cl': 'TRA_54' ,'ClNO2':'TRA_55'}
+#            tracer_library={'O3':'O3','CO':'CO','NO':'NO','TRA_53': 'CH3Br', 'TRA_52': 'CH2Br2', 'TRA_51': 'CHBr3', 'TRA_50': 'BrNO3', 'TRA_55': 'ClNO2', 'TRA_54': 'Cl', 'TRA_48': 'HBr', 'TRA_49': 'BrNO2', 'TRA_44': 'Br2', 'TRA_45': 'Br', 'TRA_46': 'BrO', 'TRA_47': 'HOBr', 'TRA_72': 'I2O5', 'TRA_78': 'OClO', 'TRA_66': 'I', 'TRA_67': 'HIO3','CH3Br': 'REA_53', 'HOBr': 'REA_47', 'CHBr3': 'REA_51', 'Br2': 'REA_44', 'BrO': 'REA_46', 'Br': 'REA_45', 'CH2Br2': 'REA_52', 'BrNO2': 'REA_49', 'BrNO3': 'REA_50', 'HBr': 'REA_48','NO': 'NO', 'O3': 'O3', 'CH3Br': 'TRA_53', 'HI': 'TRA_58', 'Br': 'TRA_45', 'BrO': 'TRA_46', 'BrNO2': 'TRA_49', 'BrNO3': 'TRA_50', 'HOBr': 'TRA_47', 'Br2': 'TRA_44', 'Cl': 'TRA_54' ,'ClNO2':'TRA_55'}
 
 #Not inc. NO2        NO         NO3        N2O5       HNO4       HNO3       HNO2       PAN        PPN        PMN        R4N2       H2O2       MP         CH2O
 #     HO2        OH         RO2        MO2        ETO2       CO         C2H6       C3H8       PRPE       ALK4       ACET       ALD2       MEK        RCHO    #   MVK        SO2        DMS        MSA        SO4    \
 #    ISOP 
-
-            output_species=tracer_library[input_species]
-            return output_species
+#
+#            output_species=tracer_library[input_species]
+#            return output_species
 
 # -------------
 # 1.10 -  return contiguous numpy 4D array (lon,lat , alt,time) for given dates in PyGChem format (datetime.datetime, datetime.datetime)
@@ -646,23 +644,6 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
     big=np.float64(big)             
     print 'readfile read big of size: ', len(big)
     return big, names
-
-# --------------
-# 1.14 - Process time/date to CV days equivilent - mje
-# -------------
-# translate year to "since2006" function
-def year_to_since_2006(model):
-    year=(model[:,0]//10000)
-    month=((model[:,0]-year*10000)//100)
-    day=(model[:,0]-year*10000-month*100)
-    hour=model[:,1]//100
-    min=(model[:,1]-hour*100)
-    doy=[ datetime.datetime(np.int(year[i]),np.int(month[i]),np.int(day[i]),\
-        np.int(hour[i]),np.int(min[i]),0)- \
-        datetime.datetime(2006,1,1,0,0,0) \
-    for i in range(len(year))]
-        since2006=[doy[i].days+doy[i].seconds/(24.*60.*60.) for i in range(len(doy))]
-    return since2006
 
 # --------------
 # 1.15 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03)
