@@ -688,7 +688,7 @@ class species:
                self.formula   = row[1]
                self.InChI     = row[2]
                self.smiles    = row[3]
-               self.RMM       = row[4]
+               self.RMM       = float(row[4])
                self.Latex     = row[5]
          except NameError:
             print "Species not found in CSV file"
