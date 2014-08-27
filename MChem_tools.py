@@ -682,6 +682,8 @@ class species:
          print "Error: Species.csv does not appear to exist."
       species_csv      = csv.reader(species_file)
 
+      self.group = 'IJ-AVG-$'
+
       for row in species_csv:
          try:
             if (str(self.name) == row[0].strip()):
