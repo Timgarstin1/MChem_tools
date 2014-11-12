@@ -655,7 +655,7 @@ def what_species_am_i(x) :
 
 
 # ------------
-# 1.06? Class for holding extra Geos-Chem (GC) species data. Input the string into the class init function and it can give several forms of data out.
+# 1.16 Class for holding extra Geos-Chem (GC) species data. Input the string into the class init function and it can give several forms of data out.
 # e.g. 
 #  O3 = species('O3')
 #  print O3.Latex
@@ -695,3 +695,99 @@ class species:
          except NameError:
             print "Species not found in CSV file"
 
+# --------------
+# 1.17 -  GEOS-Chem species in latex form
+# --------------
+def latex_spec_name(input_x, debug=False):
+     spec_dict = {'OIO': 'OIO', 'C3H7I': 'C$_{3}$H$_{7}$I', 'IO': 'IO', 'I': 'I', 'I2': 'I$_{2}$', 'CH2ICl': 'CH$_{2}$ICl', 'HOI': 'HOI', 'CH2IBr': 'CH$_{2}$IBr', 'C2H5I': 'C$_{2}$H$_{5}$I', 'CH2I2': 'CH$_{2}$I$_{2}$', 'CH3IT': 'CH$_{3}$I', 'IONO': 'IONO','HIO3': 'HIO$_{3}$', 'ICl': 'ICl', 'I2O3': 'I$_{2}$O$_{3}$', 'I2O4': 'I$_{2}$O$_{4}$', 'I2O5': 'I$_{2}$O$_{5}$', 'INO': 'INO', 'I2O': 'I$_{2}$O', 'IBr': 'IBr','I2O2': 'I$_{2}$O$_{2}$', 'IONO2': 'IONO$_{2}$', 'HI':'HI', 'BrO':'BrO','Br':'Br','HOBr':'HOBr','Br2':'Br$_{2}$','CH3Br':'CH$_{3}$Br','CH2Br2':'CH$_{2}$Br$_{2}$', 'CHBr3':'CHBr$_{3}$','O3':'O$_{3}$', 'CO':'CO' , 'DMS':'DMS', 'NOx':'NOx', 'NO':'NO', 'NO2':'NO$_{2}$', 'NO3':'NO$_{3}$','HNO3':'HNO$_{3}$', 'HNO4':'HNO$_{4}$','PAN':'PAN', 'HNO2':'HNO$_{2}$', 'N2O5':'N$_{2}$O$_{5}$','ALK4':'>= C4 alkanes','ISOP':'CH$_{2}$=C(CH$_{3}$)CH=CH$_{2}$' ,'H2O2':'H$_{2}$O$_{2}$','ACET':'CH$_{3}$C(O)CH$_{3}$', 'MEK':'>C3 ketones', 'ALD2':'CH$_{3}$CHO', 'RCHO': 'CH$_{3}$CH$_{2}$CHO', 'MVK':'CH$_{2}$=CHC(O)CH$_{3}$', 'MACR':'CH$_{2}$=C(CH$_{3}$)CHO', 'PMN':'CH$_{2}$=C(CH$_{3}$)C(O)OONO$_{2}$', 'PPN':'CH$_{3}$CH$_{2}$C(O)OONO$_{2}$', 'R4N2':'>= C4 alkylnitrates','PRPE':'>= C4 alkenes', 'C3H8':'C$_{3}$H$_{8}$','CH2O':'CH$_{2}$O', 'C2H6':'C$_{2}$H$_{6}$', 'MP':'CH$_{3}$OOH', 'SO2':'SO$_{2}$', 'SO4':'SO$_{4}$','SO4s':'SO$_{4}$ on SSA', 'MSA':'CH$_{4}$SO$_{3}$','NH3':'NH$_{3}$', 'NH4': 'NH$_{4}$', 'NIT': 'InOrg N', 'NITs': 'InOrg N on SSA', 'BCPI':'BCPI', 'OCPI':'OCPI', 'BCPO':'BCPO','OCPO':'OCPO', 'DST1':'DST1', 'DST2':'DST2','DST3':'DST3','DST4':'DST4','SALA':'SALA', 'SALC':'SALC',  'HBr':'HBr', 'BrNO2': 'BrNO$_{2}$', 'BrNO3': 'BrNO$_{3}$', 'MPN':'CH$_{3}$ON$_{2}$', 'ISOPN':'ISOPN', 'MOBA':'MOBA', 'PROPNN':'PROPNN', 'HAC':'HAC', 'GLYC':'GLYC', 'MMN':'MMN', 'RIP':'RIP', 'IEPOX':'IEPOX','MAP':'MAP', 'AERI':'AERI' , 'Cl2':'Cl$_{2}$', 'Cl':'Cl','HOCl':'HOCl','ClO':'ClO','OClO':'OClO','BrCl':'BrCl' }
+
+# -------------
+# 1.18- extract reactions tracked by prod loss diag for a given p/l family
+# ------------- 
+def rxns_in_pl( wd, spec='LOX' ):
+    fn =  'smv2.log'
+    file_ =  open( wd+'/'+fn, 'rb' )
+    readrxn  = False
+    for row in file_:
+        row = row.split()
+        if all( [ i in row for i in 'Family','coefficient' , 'rxns', spec] ):
+            readrxn=True
+        if len(row) < 1 :
+            readrxn=False
+        if  readrxn:
+            try:
+                rxns.append( row )
+            except:
+                rxns = [ row ]          
+
+    # -- remove 'Family' 
+    rxns = [ i for i in rxns if (  'Family' not in i ) ]
+    n = [int(rxn[1]) for rxn in rxns ]
+    rxns = [rxn[2:] for rxn in rxns ]
+
+    rdict = dict( zip(n, rxns) )
+    return rdict
+
+# -------------
+# 1.19 - Get tags for reactions
+# ------------- 
+def get_p_l_tags( rxns ):
+
+    # (PD??, RD??, LO3_??, PO3_??, LR??)
+    for rxn in rxns:
+#        print rxn
+#        print [ i for i in rxn if  any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
+        tags =  [i for i in rxn if any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
+        try:
+            tagsl.append( tags)
+        except:
+            tagsl = [tags]
+
+    return tagsl
+
+# -------------
+# 1.20 - Get prod loss reactions for a given family.
+# ------------- 
+def prod_loss_4_spec( wd, spec ):
+    # ---  Get Dict of all reactions, Keys = #s
+    rdict = rxn_dict_from_smvlog(wd)
+
+    # ---  Get reaction # tracked by p/l diag for spec and coefficient.
+    rxns = rxns_in_pl(wd, spec)
+    nums =  rxns.keys() 
+    Coe = [ rxn[-1] for rxn in rxns.values() ]
+
+    # --- get all details from full reaction dictionary
+    rxns =  [ rdict[i] for i in nums ]
+
+    # --- get tags for tracked reactions, state where reactions are un tracked
+    tags = get_p_l_tags( rxns )
+
+    return nums, rxns, tags, Coe
+
+# -------------
+# 1.21 - extract reactions to form a dictionary of active reactions
+# ------------- 
+def rxn_dict_from_smvlog( wd, spec='LOX' ):
+    fn =  'smv2.log'
+    file_ =  open( wd+'/'+fn, 'rb' )
+    readrxn  = False
+    for row in file_:
+        row = row.split()
+        if 'NMBR' in row:
+            readrxn=True
+        if len(row) < 1 :
+            readrxn=False
+        if  readrxn:
+            try:
+                rxns.append( row )
+            except:
+                rxns = [ row ]          
+
+    # -- remove 'NMBR'
+    rxns = [ i for i in rxns if (  'NMBR' not in i ) ]
+    n = [int(rxn[0]) for rxn in rxns ]
+    rxns = [rxn[1:] for rxn in rxns ]
+    rdict = dict( zip(n, rxns) )
+    return rdict
+    
