@@ -675,14 +675,18 @@ class species:
    self.smiles    = The smiles string of the species.
    self.InChI     = The InChI string of the species.
    """)
-      species_filename = "Species.csv"
+      species_filename = os.path.dirname(__file__) + "/Species.csv"
+
       try:
          species_file     = open(species_filename, 'rb')
       except IOError:
          print "Error: Species.csv does not appear to exist."
       species_csv      = csv.reader(species_file)
 
-      self.group = 'IJ-AVG-$'
+      if (name == 'OH'):
+         self.group = 'CHEM-L=$'
+      else:
+         self.group = 'IJ-AVG-$'
 
       for row in species_csv:
          try:
