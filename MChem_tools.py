@@ -666,8 +666,6 @@ def what_species_am_i(x) :
 class species:
    def __init__(self, name):
       self.name = name
-      print '####'
-      print self
       self.help = ("""This is a class to get information on species from a local CSV folder
    It might contain the following information:
    self.RMM       = The Mean Mass of the species.
