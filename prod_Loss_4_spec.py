@@ -6,7 +6,6 @@ import sys
 try:    # chcck if a directory was given ad command line
     wd    = sys.argv[1]
 except: # Otherwise use path below
-#       wd    = '/work/home/ts551/data/all_model_simulations/standard_code_runs/standard_run_code_13_01_17_1_year/run'
     wd    = '<insert GEOS-Chem run direcotory path here>'
 
 # --- Settings

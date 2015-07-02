@@ -1,17 +1,23 @@
-## --------------------------------- Planeflight Plotter - tms -------------------------------------
+# ------------ Planeflight Plotter - tms -------------------------------------
 # --------------  
+#!/usr/bin/python
 import matplotlib.pyplot as plt 
 import matplotlib.font_manager as font_manager
 from matplotlib import cm
 from MChem_tools import *
 
-#---------------------------------------- SET PLOTTING HERE ----------------------------------------
+# --------- SET PLOTTING HERE ----------------------------------------
+# -------------
 # Plot out data?
 #debug=True
 
 # Where are the model files? And What Species do you want to plot?
-wd='/home/jts507/MChem/2yearrun/Run/plane_flight_logs/plane.log.200*'
-
+# ---- Get inputs from command line/defaults
+try:    # chcck if a directory was given ad command line
+    wd    = sys.argv[1]
+except: # Otherwise use path below
+    wd    = '<insert GEOS-Chem run direcotory path here>'
+    
 # Which species to plot?  (must be in list form) 
 species_to_plot= 'ClNO2'#'Cl'
 
@@ -23,7 +29,7 @@ print years_to_use, months_to_use, days_to_use
 locations=['TX1','LA1'] # must be as a list of strings
 print locations
 
-# ---------------------------------------- START PLOTTING HERE -------------------------------------------------------------
+# ----------- START PLOTTING HERE ----------------------------------------
 # -------------
 species_to_plot=[what_species_am_i(species_to_plot)]
 
