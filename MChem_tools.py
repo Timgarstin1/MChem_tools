@@ -80,7 +80,7 @@ def get_air_mass_np(ctm_f, times=None, debug=False):
             np_scalar = scalar
         if (debug):
             print 'np_scalar' , type(np_scalar), len(np_scalar), \
-                np_scalar.shape, 'scalar', type(scalar), len(scalar),\ 
+                np_scalar.shape, 'scalar', type(scalar), len(scalar),\
                 scalar.shape
     return np_scalar
 
@@ -352,6 +352,10 @@ def process_files_to_read(files, location, big, names, debug=True):
     reader=csv.reader(open(files,'rb'), delimiter=' ', skipinitialspace = True)
     for row in reader:
 #        print location , (row[0] == 'POINT'), (row[1] == location) ,  len(row) , len(big), len(names)#, big.shape#, (row[2:])[0], (row[-1]) , l
+
+#        print row
+#        sys.exit( 0 )
+
         if row[1] == location: 
             new=row[2:]
             try:    
@@ -416,7 +420,7 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
                                                 days_to_use[day], \
                                                 'days_to_use[-1]', \
                                                 days_to_use[-1]
-                                            big, names = process_files_to_read(\ 
+                                            big, names = process_files_to_read(\
                                                 files, location,big, names)
                                             if (debug):
                                                 print 'i got to line 108'
