@@ -9,7 +9,7 @@ import os
 import glob
 import datetime as datetime 
 import csv
-
+import sys
 
 # --------------- ------------- ------------- ------------- ------------- 
 # ---- Section 1 ----- Modules required
@@ -386,9 +386,11 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
                             'years_to_use[-1]', years_to_use[-1]
                     if (not (years_to_use[year] == years_to_use[-1])):
                         # just read all years upto point uptyo final year
-                        big, names=process_files_to_read(files, location,big, names)
+                        big, names=process_files_to_read(files, location,\
+                            big, names)
                         print 'i got to line 91'
-                    # If last year selected, then only plot the given months & days
+                    # If last year selected, then retrieve only 
+                    # given months & days
                     if (years_to_use[year] == years_to_use[-1]):
                         # Plot months exceot last one
                         for month in range(len(months_to_use)):                                                                                                  
@@ -433,6 +435,11 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
 
     big=np.float64(big)             
     print 'readfile read big of size: ', len(big)
+    if len(big) == 0:
+        print 'ERROR - no output read in for:', location,  years_to_use, \
+            months_to_use, days_to_use
+        sys.exit( 0 )
+        
     return big, names
 
 # --------------
