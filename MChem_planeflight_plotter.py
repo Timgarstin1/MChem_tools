@@ -37,8 +37,8 @@ locations=['WE']
 print locations
 
 # look in the "plane_flight_logs" directory
-#wd = wd+ '/plane_flight_logs/plane.log.*'
-wd = wd+ '/plane.log.*'
+wd = wd+ '/plane_flight_logs/plane.log.*'
+#wd = wd+ '/plane.log.*'
 print wd
 print sorted(glob.glob(wd))
 
