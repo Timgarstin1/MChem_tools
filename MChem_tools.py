@@ -1,6 +1,6 @@
 # ------------  MChem Tools - tms -------------------------------------
 # --------------  
-# modules:
+# ---- Section 0 ----- Modules required
 import pygchem.diagnostics as gdiag
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
@@ -12,24 +12,41 @@ import csv
 import sys
 
 # --------------- ------------- ------------- ------------- ------------- 
-# ---- Section 1 ----- Modules required
+# ---- Section 1 ----- Core Programmes
 # 1.01 - Open ctm.bpch 
 # 1.02 - Get np array (4D) of ctm.bpch ( lon, lat, alt, time)
 # 1.03 - Get Air mass 
 # 1.04 - Plot up GEOS-Chem slice
-# 1.05 - Reference data (from GChem - credit: Gerrit Kuhlmann)
-# 1.06 -  Process time/date to CV days equivilent - mje
+# 1.06 - Process time/date to CV days equivilent - mje
 # 1.07 - incremental increase datetime by given months - credit: Dave Webb
 # 1.08 - processes provided files to extract data/names
 # 1.09 - date specific (Year,Month,Day) planeflight output reader 
-# 1.10 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03/v9-2 - iodine branch)
-# 1.11 - Class for holding extra Geos-Chem (GC) species data.
-# 1.12 - GEOS-Chem species in latex form
-# 1.13 - extract reactions tracked by prod loss diag for a given p/l family
-# 1.14 - Get tags for reactions
-# 1.15 - Get prod loss reactions for a given family.
-# 1.16 - Extract reactions to form a dictionary of active reactions
 
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 2 ----- Generic Tools
+# 2.01 - find nearest values in array
+# 2.02 - Get GEOS-Chem longitude index for a given latitude
+# 2.03 - Get GEOS-Chem latitude index for a given latitude
+# 2.04 - Get GC datetime
+# 2.05 - Get GEOS-Chem altitude index for a given latitude
+
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 3 ----- Prod-Loss processing
+# 3.01 - extract reactions tracked by prod loss diag for a given p/l family
+# 3.02- Get tags for reactions
+# 3.03 - Get prod loss reactions for a given family.
+# 3.04 - Extract reactions to form a dictionary of active reactions
+
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 4 ----- Species and Reference GEOS-Chem data
+# 4.01 - Class for holding extra Geos-Chem (GC) species data.
+# 4.02 - GEOS-Chem species in latex form
+# 4.03 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03/v9-2 - iodine branch)
+# 4.04 - Reference data (from GChem - credit: Gerrit Kuhlmann)
+
+
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 1 ----- Core Programmes
 # --------------                                                                                 
 # 1.01 - open ctm.bpch using PyGChem                                                             
 # --------------                                                                                
@@ -130,7 +147,7 @@ def plot_geos_alt_slice(scalar, **Kwargs):
     return plt , cb 
 
 # --------------
-# 1.05 - Reference data, (inc. grid data) from GChem - credit: GK (Gerrit Kuhlmann )
+# 4.04 - Reference data, (inc. grid data) from GChem - credit: GK (Gerrit Kuhlmann )
 # ------------- 
 
 # --------------------
@@ -442,16 +459,153 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
         
     return big, names
 
-# --------------
-# 1.10 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03)
-# -------------
-def what_species_am_i(x) :
-    TRA_lib={'O3':'O3','CO':'CO','NO':'NO','TRA_68': 'I2O', 'TRA_79': 'BrCl', 'TRA_71': 'I2O4', 'TRA_70': 'I2O3', 'TRA_59': 'IONO', 'TRA_58': 'HI', 'TRA_75': 'Cl', 'TRA_74': 'Cl2', 'TRA_77': 'ClO', 'TRA_76': 'HOCl', 'TRA_53': 'CH3Br', 'TRA_52': 'CH2Br2', 'TRA_51': 'CHBr3', 'TRA_50': 'BrNO3', 'TRA_57': 'OIO', 'TRA_56': 'IO', 'TRA_55': 'HOI', 'TRA_54': 'I2', 'TRA_69': 'INO', 'TRA_62': 'CH3I', 'TRA_63': 'CH2I2', 'TRA_60': 'IONO2', 'TRA_61': 'I2O2', 'TRA_48': 'HBr', 'TRA_49': 'BrNO2', 'TRA_64': 'IBr', 'TRA_65': 'ICl', 'TRA_44': 'Br2', 'TRA_45': 'Br', 'TRA_46': 'BrO', 'TRA_47': 'HOBr', 'TRA_73': 'AERI', 'TRA_72': 'I2O5', 'TRA_78': 'OClO', 'TRA_66': 'I', 'TRA_67': 'HIO3','CH3Br': 'REA_53', 'HOBr': 'REA_47', 'CHBr3': 'REA_51', 'Br2': 'REA_44', 'BrO': 'REA_46', 'Br': 'REA_45', 'CH2Br2': 'REA_52', 'BrNO2': 'REA_49', 'BrNO3': 'REA_50', 'HBr': 'REA_48','NO': 'NO', 'O3': 'O3', 'IO': 'TRA_56', 'CH3Br': 'TRA_53', 'HI': 'TRA_58', 'Br': 'TRA_45', 'IONO': 'TRA_59', 'Cl': 'TRA_75', 'BrO': 'TRA_46', 'HIO3': 'TRA_67', 'OClO': 'TRA_78', 'CH3I': 'TRA_62', 'CHBr3': 'TRA_51', 'ClO': 'TRA_77', 'I2O2': 'TRA_61', 'HOI': 'TRA_55', 'BrNO2': 'TRA_49', 'BrNO3': 'TRA_50', 'I': 'TRA_66', 'I2O': 'TRA_68', 'OIO': 'TRA_57', 'Cl2': 'TRA_74', 'BrCl': 'TRA_79', 'CH2Br2': 'TRA_52', 'ICl': 'TRA_65', 'CH2I2': 'TRA_63', 'IBr': 'TRA_64', 'I2O5': 'TRA_72', 'CO': 'CO', 'HBr': 'TRA_48', 'HOCl': 'TRA_76', 'HOBr': 'TRA_47', 'Br2': 'TRA_44', 'I2': 'TRA_54', 'I2O4': 'TRA_71', 'AERI': 'TRA_73', 'IONO2': 'TRA_60', 'I2O3': 'TRA_70', 'INO': 'TRA_69','REA_327': 'HO + CH3IT => H2O + I (CH2I)', 'REA_378': 'HI => .5I2', 'REA_325': 'IO + CH3O2 =(M)> I + HO2 + HCHO', 'REA_324': 'OIO + OH => HIO3', 'REA_373': 'I2O3 + I2O4 => 4AERI', 'REA_322': 'IO + IO (O2) =>I2O2', 'REA_363': 'I2O2 =(M)> IO + IO', 'REA_320': 'IO + IO (O2) => I + OIO', 'REA_309': 'I + O3 => IO + O2', 'REA_362': 'OIO + OIO => I2O4', 'REA_360': 'IO + OIO =(M)> I2O3', 'REA_367': 'I2O2 + O3 => I2O3 +O2', 'REA_369': 'I2O4 + O3 => I2O5 + O2', 'REA_365': 'I2O2 =(M)> OIO + I', 'REA_328': 'I + NO <=(M)> INO', 'REA_368': 'I2O3 + O3 => I2O4 +O2', 'REA_444': 'IONO =(hv)> I + NO2', 'REA_370': 'I2O4 =(M)> 2OIO', 'REA_446': 'I2O2 => IO + IO', 'REA_440': 'I2 =(hv)> 2I', 'REA_451': 'INO => I + NO', 'REA_447': 'CH3IT =>  <CH3 +I>', 'REA_441': 'HOI =(hv)> I + OH', 'REA_448': 'CH2I2 => <CH2 + I +I >', 'REA_332': 'I + NO2 <=(M)> IONO', 'REA_379': 'IONO2 => 0.5I2', 'REA_449': 'IBr =(hv)> I + Br', 'REA_445': 'IONO2 =(hv)> I + NO3', 'REA_375': 'I2O4 + I2O4 => 4AERI', 'REA_352': 'IO + BrO => Br + I + O2', 'REA_353': 'IO + BrO => Br +OIO', 'REA_350': 'IO + ClO => I + Cl + O2', 'REA_351': 'IO + ClO => I + OClO', 'REA_356': 'ICl + OH => HOCl  +I', 'REA_357': 'IBr + Br => I + Br2', 'REA_354': 'ICl + Cl => Cl2 + I', 'REA_355': 'ICL + Br => BrCl + I', 'REA_358': 'IBr + OH => HOI + Br', 'REA_359': 'IBr + OH => HOBr + I', 'REA_372': 'I2O3 + OIO => 3AERI', 'REA_334': 'IONO =(delta)> I + NO2', 'REA_335': 'IONO + IONO => I2 + 2NO2', 'REA_336': 'I2 + NO3 => I + IONO2', 'REA_337': 'IO + NO2 => IONO2', 'REA_330': 'INO =(delta)> NO + I', 'REA_331': 'INO + INO => I2 + 2NO', 'REA_318': 'IO + HO2 => HOI + O2', 'REA_319': 'IO + NO => I + NO2', 'REA_316': 'HI + OH => I + H2O', 'REA_317': 'HOI + OH => IO + H2O', 'REA_314': 'I + I2O => IO + I2', 'REA_315': 'I2 + OH => HOI + I', 'REA_374': 'I2O4 + OIO => 3AERI', 'REA_313': 'I + IO => I2O', 'REA_310': 'I + HO2 => HI + O2', 'REA_311': 'I + I =(M)> I2', 'REA_376': 'OIO + NO => NO2 + IO', 'REA_377': 'IO => .5I2', 'REA_442': 'IO =(hv)> I + O3', 'REA_450': 'ICl =(hv)> I + Cl', 'REA_339': 'IONO2 + I = I2 + NO3', 'REA_345': 'I2 + Br => I + IBr', 'REA_344': 'I2 + Cl => I + ICl', 'REA_347': 'IO + Cl => I + ClO', 'REA_346': 'I2 +BrO => IO + IBr', 'REA_340': 'IONO2 =(M)> IO + NO2', 'REA_343': 'I + BrO => IO + Br', 'REA_342': 'I + Br2 => Br + IBr', 'REA_381': '"HIO3 => AERI ( ""aerosol"")"', 'REA_380': '"OIO => AERI (""aerosol"")"', 'REA_383': 'HOI =>0.5I2', 'REA_382': 'I2O5 => 2AERI', 'REA_349': 'IO + ClO => ICl + O2', 'REA_348': 'IO + Br => I + BrO', 'REA_443': 'OIO =(hv)> I + O2(M)','PD59': 'IONO2 => 0.5I2', 'PD58': 'HI => .5I2', 'PD57': 'IO => .5I2', 'PD56': 'OIO + NO => NO2 + IO', 'PD55': 'I2O4 + I2O4 => 4AERI', 'PD54': 'I2O4 + OIO => 3AERI', 'PD53': 'I2O3 + I2O4 => 4AERI', 'PD52': 'I2O3 + OIO => 3AERI', 'PD51': 'I2O4 =(M)> 2OIO', 'PD50': 'I2O4 + O3 => I2O5 + O2', 'PD70': 'I2O2 => IO + IO', 'PD63': 'HOI =>0.5I2', 'PD69': 'IONO2 =(hv)> I + NO3', 'PD67': 'OIO =(hv)> I + O2(M)', 'PD62': 'I2O5 => 2AERI', 'PD71': 'CH3IT =>  <CH3 +I>', 'PD49': 'I2O3 + O3 => I2O4 +O2', 'PD39': 'ICL + Br => BrCl + I', 'PD38': 'ICl + Cl => Cl2 + I', 'PD60': '"OIO => AERI (""aerosol"")"', 'PD01': 'I + O3 => IO + O2', 'PD02': 'I + HO2 => HI + O2', 'PD03': 'I + I =(M)> I2', 'PD04': 'I + IO => I2O', 'PD05': 'I + I2O => IO + I2', 'PD06': 'I2 + OH => HOI + I', 'PD07': 'HI + OH => I + H2O', 'PD08': 'HOI + OH => IO + H2O', 'PD09': 'IO + HO2 => HOI + O2', 'PD24': 'IONO2 + I = I2 + NO3', 'PD25': 'IONO2 =(M)> IO + NO2', 'PD22': 'I2 + NO3 => I + IONO2', 'PD23': 'IO + NO2 => IONO2', 'PD20': 'IONO =(delta)> I + NO2', 'PD21': 'IONO + IONO => I2 + 2NO2', 'PD68': 'IONO =(hv)> I + NO2', 'PD47': 'I2O2 =(M)> OIO + I', 'PD48': 'I2O2 + O3 => I2O3 +O2', 'PD28': 'I2 + Cl => I + ICl', 'PD75': 'INO => I + NO', 'PD44': 'IO + OIO =(M)> I2O3', 'PD45': 'OIO + OIO => I2O4', 'PD46': 'I2O2 =(M)> IO + IO', 'PD29': 'I2 + Br => I + IBr', 'PD40': 'ICl + OH => HOCl  +I', 'PD41': 'IBr + Br => I + Br2', 'PD42': 'IBr + OH => HOI + Br', 'PD43': 'IBr + OH => HOBr + I', 'PD26': 'I + Br2 => Br + IBr', 'PD64': 'I2 =(hv)> 2I', 'PD27': 'I + BrO => IO + Br', 'PD65': 'HOI =(hv)> I + OH', 'PD74': 'ICl =(hv)> I + Cl', 'PD33': 'IO + ClO => ICl + O2', 'PD61': '"HIO3 => AERI ( ""aerosol"")"', 'PD72': 'CH2I2 => <CH2 + I +I >', 'PD32': 'IO + Br => I + BrO', 'PD66': 'IO =(hv)> I + O3', 'PD73': 'IBr =(hv)> I + Br', 'PD13': 'OIO + OH => HIO3', 'PD12': 'IO + IO (O2) =>I2O2', 'PD11': 'IO + IO (O2) => I + OIO', 'PD10': 'IO + NO => I + NO2', 'PD17': 'INO =(delta)> NO + I', 'PD16': 'I + NO <=(M)> INO', 'PD15': 'HO + CH3IT => H2O + I (CH2I)', 'PD14': 'IO + CH3O2 =(M)> I + HO2 + HCHO', 'PD31': 'IO + Cl => I + ClO', 'PD30': 'I2 +BrO => IO + IBr', 'PD19': 'I + NO2 <=(M)> IONO', 'PD18': 'INO + INO => I2 + 2NO', 'PD35': 'IO + ClO => I + OClO', 'PD34': 'IO + ClO => I + Cl + O2', 'PD37': 'IO + BrO => Br +OIO', 'PD36': 'IO + BrO => Br + I + O2','IONO2_hv': 'REA_445', 'ICl_hv': 'REA_450', 'CH2I2_hv': 'REA_448', 'IBr_hv': 'REA_449', 'IONO_hv': 'REA_444', 'OIO_hv': 'REA_443', 'IO_hv': 'REA_442', 'I2O2_hv': 'REA_446', 'INO_hv': 'REA_451', 'CH3IT_hv': 'REA_447', 'HOI_hv': 'REA_441', 'I2_hv': 'REA_440', 'NO2_hv': 'REA_385', 'BrNO2_hv': 'REA_438', 'NO3_hv_II': 'REA_394', 'BrNO3_hv_II': 'REA_437', 'O3_hv': 'REA_384', 'NO3_hv': 'REA_393', 'CH3Br_hv': 'REA_439', 'HOBr_hv': 'REA_435', 'HONO_hv': 'REA_391', 'Br2_hv': 'REA_433', 'BrNO3_hv': 'REA_436', 'BrO_hv': 'REA_434','REA_247': 'O3 emission', 'REA_391': 'HONO =(hv)>', 'REA_150': 'O3 + PRPE =>', 'REA_249': 'CH3Br emission', 'REA_152': 'O3 + PMN =>', 'REA_437': 'BrNO3 =(hv)>BrO +NO2', 'REA_436': 'BrNO3 =(hv)> Br + NO3', 'REA_435': 'HOBr =(hv)>', 'REA_434': 'BrO =(hv)>', 'REA_433': 'Br2 =(hv)>', 'REA_439': 'CH3Br =(hv)>', 'REA_438': 'BrNO2 =(hv)>Br + NO2', 'REA_394': 'NO3 =(hv)> ONO + O2', 'REA_393': 'NO3 =(hv)> NO2 + O3', 'REA_1': 'O3 + NO =>', 'REA_2': 'O3 + OH =>', 'REA_3': 'O3 +HO2 =>', 'REA_4': 'O3 + NO2 =>', 'REA_251': 'Br2 emission', 'REA_197': 'O3 + IALD =>', 'REA_169': 'O3 + MACR =>', 'REA_168': 'O3 + MVK =>', 'REA_254': 'I2 emission', 'REA_253': 'CH2I2 emission', 'REA_252': 'CH3IT emission', 'REA_277': 'Br + O3 =>', 'REA_250': 'CH2Br2 emission', 'REA_279': 'Br + OH2 =>', 'REA_278': 'Br + OH =>', 'REA_167': 'O3 + ISOP =>', 'REA_385': 'NO2 =(hv)>', 'REA_384': 'O3 =(hv)> OH + OH', 'REA_248': 'HNO3 emission', 'TRA_80':'CH2ICl', 'TRA_81': 'CH2IBr', 'TRA_83': 'C3H5I','TRA_82': 'C3H7I'}
-    return TRA_lib[x]
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 2 ----- Generic Tools
+# --------   
+# 2.01 - Find nearest
+# --------
+def find_nearest(array,value):
+    """
+        Find nearest point. Adapted from HappyLeapSecond's Stackoverflow 
+        answer. http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+    """
+    idx = (np.abs(array-value)).argmin()
+    return idx
 
+# ----
+# 2.02 - Get Longitube in GC grid box number
+# ---- 
+def get_gc_lon(lon, res='4x5',debug=False):
+    lon_c, NIU, NIU = get_latlonalt4res( res=res )
+    del NIU
+    return find_nearest( lon_c, lon )
+
+# ----
+# 2.03 - Get Latitude in GC grid box number
+# ---- 
+def get_gc_lat(lat, res='4x5',debug=False):
+    NIU, lat_c, NIU = get_latlonalt4res(res=res)
+    del NIU
+    return find_nearest( lat_c, lat )
+
+# ----
+# 2.04 - Get gc datetime
+# -----
+def get_gc_datetime(ctm_f, spec='O3', cat='IJ-AVG-$', debug=False):
+    d  = ctm_f.filter(name=spec, category=cat)
+    if debug:
+        print '>'*30,d
+        print '>.'*15, sorted(d)
+    return [ i.times for i in d ]
+
+# -------------- 
+# 2.05 - get_gc_alt  ( KM => box num )   
+# -------------
+def get_gc_alt(alt):
+    alt_c = gchemgrid('c_km_geos5_r')
+    return find_nearest( alt_c, alt )
+
+
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 3 ----- Prod-Loss processing
+
+# -------------
+# 3.01 - extract reactions tracked by prod loss diag for a given p/l family
+# ------------- 
+def rxns_in_pl( wd, spec='LOX' ):
+    fn =  'smv2.log'
+    file_ =  open( wd+'/'+fn, 'rb' )
+    readrxn  = False
+    for row in file_:
+        row = row.split()
+        if all( [ i in row for i in 'Family','coefficient' , 'rxns', spec] ):
+            readrxn=True
+        if len(row) < 1 :
+            readrxn=False
+        if  readrxn:
+            try:
+                rxns.append( row )
+            except:
+                rxns = [ row ]          
+
+    # -- remove 'Family' 
+    rxns = [ i for i in rxns if (  'Family' not in i ) ]
+    n = [int(rxn[1]) for rxn in rxns ]
+    rxns = [rxn[2:] for rxn in rxns ]
+
+    rdict = dict( zip(n, rxns) )
+    return rdict
+
+# -------------
+# 3.02 - Get tags for reactions
+# ------------- 
+def get_p_l_tags( rxns ):
+
+    # (PD??, RD??, LO3_??, PO3_??, LR??)
+    for rxn in rxns:
+#        print rxn
+#        print [ i for i in rxn if  any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
+        tags =  [i for i in rxn if any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
+        try:
+            tagsl.append( tags)
+        except:
+            tagsl = [tags]
+
+    return tagsl
+
+# -------------
+# 3.03 - Get prod loss reactions for a given family.
+# ------------- 
+def prod_loss_4_spec( wd, spec ):
+    # ---  Get Dict of all reactions, Keys = #s
+    rdict = rxn_dict_from_smvlog(wd)
+
+    # ---  Get reaction # tracked by p/l diag for spec and coefficient.
+    rxns = rxns_in_pl(wd, spec)
+    nums =  rxns.keys() 
+    Coe = [ rxn[-1] for rxn in rxns.values() ]
+
+    # --- get all details from full reaction dictionary
+    rxns =  [ rdict[i] for i in nums ]
+
+    # --- get tags for tracked reactions, state where reactions are un tracked
+    tags = get_p_l_tags( rxns )
+
+    return nums, rxns, tags, Coe
+
+# -------------
+# 3.04 - extract reactions to form a dictionary of active reactions
+# ------------- 
+def rxn_dict_from_smvlog( wd, spec='LOX' ):
+    fn =  'smv2.log'
+    file_ =  open( wd+'/'+fn, 'rb' )
+    readrxn  = False
+    for row in file_:
+        row = row.split()
+        if 'NMBR' in row:
+            readrxn=True
+        if len(row) < 1 :
+            readrxn=False
+        if  readrxn:
+            try:
+                rxns.append( row )
+            except:
+                rxns = [ row ]          
+
+    # -- remove 'NMBR'
+    rxns = [ i for i in rxns if (  'NMBR' not in i ) ]
+    n = [int(rxn[0]) for rxn in rxns ]
+    rxns = [rxn[1:] for rxn in rxns ]
+    rdict = dict( zip(n, rxns) )
+    return rdict
+    
+
+
+# --------------- ------------- ------------- ------------- ------------- 
+# ---- Section 4 ----- Species and Reference GEOS-Chem data
 
 # ------------
-# 1.11 - Class for holding extra Geos-Chem (GC) species data. Input the string into the class init function and it can give several forms of data out.
+# 4.01 - Class for holding extra Geos-Chem (GC) species data. Input the string into the class init function and it can give several forms of data out.
 # e.g. 
 #  O3 = species('O3')
 #  print O3.Latex
@@ -494,98 +648,19 @@ class species:
             print "Species not found in CSV file"
 
 # --------------
-# 1.12 -  GEOS-Chem species in latex form
+# 4.02 -  GEOS-Chem species in latex form
 # --------------
 def latex_spec_name(input_x, debug=False):
      spec_dict = {'OIO': 'OIO', 'C3H7I': 'C$_{3}$H$_{7}$I', 'IO': 'IO', 'I': 'I', 'I2': 'I$_{2}$', 'CH2ICl': 'CH$_{2}$ICl', 'HOI': 'HOI', 'CH2IBr': 'CH$_{2}$IBr', 'C2H5I': 'C$_{2}$H$_{5}$I', 'CH2I2': 'CH$_{2}$I$_{2}$', 'CH3IT': 'CH$_{3}$I', 'IONO': 'IONO','HIO3': 'HIO$_{3}$', 'ICl': 'ICl', 'I2O3': 'I$_{2}$O$_{3}$', 'I2O4': 'I$_{2}$O$_{4}$', 'I2O5': 'I$_{2}$O$_{5}$', 'INO': 'INO', 'I2O': 'I$_{2}$O', 'IBr': 'IBr','I2O2': 'I$_{2}$O$_{2}$', 'IONO2': 'IONO$_{2}$', 'HI':'HI', 'BrO':'BrO','Br':'Br','HOBr':'HOBr','Br2':'Br$_{2}$','CH3Br':'CH$_{3}$Br','CH2Br2':'CH$_{2}$Br$_{2}$', 'CHBr3':'CHBr$_{3}$','O3':'O$_{3}$', 'CO':'CO' , 'DMS':'DMS', 'NOx':'NOx', 'NO':'NO', 'NO2':'NO$_{2}$', 'NO3':'NO$_{3}$','HNO3':'HNO$_{3}$', 'HNO4':'HNO$_{4}$','PAN':'PAN', 'HNO2':'HNO$_{2}$', 'N2O5':'N$_{2}$O$_{5}$','ALK4':'>= C4 alkanes','ISOP':'CH$_{2}$=C(CH$_{3}$)CH=CH$_{2}$' ,'H2O2':'H$_{2}$O$_{2}$','ACET':'CH$_{3}$C(O)CH$_{3}$', 'MEK':'>C3 ketones', 'ALD2':'CH$_{3}$CHO', 'RCHO': 'CH$_{3}$CH$_{2}$CHO', 'MVK':'CH$_{2}$=CHC(O)CH$_{3}$', 'MACR':'CH$_{2}$=C(CH$_{3}$)CHO', 'PMN':'CH$_{2}$=C(CH$_{3}$)C(O)OONO$_{2}$', 'PPN':'CH$_{3}$CH$_{2}$C(O)OONO$_{2}$', 'R4N2':'>= C4 alkylnitrates','PRPE':'>= C4 alkenes', 'C3H8':'C$_{3}$H$_{8}$','CH2O':'CH$_{2}$O', 'C2H6':'C$_{2}$H$_{6}$', 'MP':'CH$_{3}$OOH', 'SO2':'SO$_{2}$', 'SO4':'SO$_{4}$','SO4s':'SO$_{4}$ on SSA', 'MSA':'CH$_{4}$SO$_{3}$','NH3':'NH$_{3}$', 'NH4': 'NH$_{4}$', 'NIT': 'InOrg N', 'NITs': 'InOrg N on SSA', 'BCPI':'BCPI', 'OCPI':'OCPI', 'BCPO':'BCPO','OCPO':'OCPO', 'DST1':'DST1', 'DST2':'DST2','DST3':'DST3','DST4':'DST4','SALA':'SALA', 'SALC':'SALC',  'HBr':'HBr', 'BrNO2': 'BrNO$_{2}$', 'BrNO3': 'BrNO$_{3}$', 'MPN':'CH$_{3}$ON$_{2}$', 'ISOPN':'ISOPN', 'MOBA':'MOBA', 'PROPNN':'PROPNN', 'HAC':'HAC', 'GLYC':'GLYC', 'MMN':'MMN', 'RIP':'RIP', 'IEPOX':'IEPOX','MAP':'MAP', 'AERI':'AERI' , 'Cl2':'Cl$_{2}$', 'Cl':'Cl','HOCl':'HOCl','ClO':'ClO','OClO':'OClO','BrCl':'BrCl' }
 
+# --------------
+# 4.03 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03)
 # -------------
-# 1.13 - extract reactions tracked by prod loss diag for a given p/l family
-# ------------- 
-def rxns_in_pl( wd, spec='LOX' ):
-    fn =  'smv2.log'
-    file_ =  open( wd+'/'+fn, 'rb' )
-    readrxn  = False
-    for row in file_:
-        row = row.split()
-        if all( [ i in row for i in 'Family','coefficient' , 'rxns', spec] ):
-            readrxn=True
-        if len(row) < 1 :
-            readrxn=False
-        if  readrxn:
-            try:
-                rxns.append( row )
-            except:
-                rxns = [ row ]          
+def what_species_am_i(x) :
+    TRA_lib={'O3':'O3','CO':'CO','NO':'NO','TRA_68': 'I2O', 'TRA_79': 'BrCl', 'TRA_71': 'I2O4', 'TRA_70': 'I2O3', 'TRA_59': 'IONO', 'TRA_58': 'HI', 'TRA_75': 'Cl', 'TRA_74': 'Cl2', 'TRA_77': 'ClO', 'TRA_76': 'HOCl', 'TRA_53': 'CH3Br', 'TRA_52': 'CH2Br2', 'TRA_51': 'CHBr3', 'TRA_50': 'BrNO3', 'TRA_57': 'OIO', 'TRA_56': 'IO', 'TRA_55': 'HOI', 'TRA_54': 'I2', 'TRA_69': 'INO', 'TRA_62': 'CH3I', 'TRA_63': 'CH2I2', 'TRA_60': 'IONO2', 'TRA_61': 'I2O2', 'TRA_48': 'HBr', 'TRA_49': 'BrNO2', 'TRA_64': 'IBr', 'TRA_65': 'ICl', 'TRA_44': 'Br2', 'TRA_45': 'Br', 'TRA_46': 'BrO', 'TRA_47': 'HOBr', 'TRA_73': 'AERI', 'TRA_72': 'I2O5', 'TRA_78': 'OClO', 'TRA_66': 'I', 'TRA_67': 'HIO3','CH3Br': 'REA_53', 'HOBr': 'REA_47', 'CHBr3': 'REA_51', 'Br2': 'REA_44', 'BrO': 'REA_46', 'Br': 'REA_45', 'CH2Br2': 'REA_52', 'BrNO2': 'REA_49', 'BrNO3': 'REA_50', 'HBr': 'REA_48','NO': 'NO', 'O3': 'O3', 'IO': 'TRA_56', 'CH3Br': 'TRA_53', 'HI': 'TRA_58', 'Br': 'TRA_45', 'IONO': 'TRA_59', 'Cl': 'TRA_75', 'BrO': 'TRA_46', 'HIO3': 'TRA_67', 'OClO': 'TRA_78', 'CH3I': 'TRA_62', 'CHBr3': 'TRA_51', 'ClO': 'TRA_77', 'I2O2': 'TRA_61', 'HOI': 'TRA_55', 'BrNO2': 'TRA_49', 'BrNO3': 'TRA_50', 'I': 'TRA_66', 'I2O': 'TRA_68', 'OIO': 'TRA_57', 'Cl2': 'TRA_74', 'BrCl': 'TRA_79', 'CH2Br2': 'TRA_52', 'ICl': 'TRA_65', 'CH2I2': 'TRA_63', 'IBr': 'TRA_64', 'I2O5': 'TRA_72', 'CO': 'CO', 'HBr': 'TRA_48', 'HOCl': 'TRA_76', 'HOBr': 'TRA_47', 'Br2': 'TRA_44', 'I2': 'TRA_54', 'I2O4': 'TRA_71', 'AERI': 'TRA_73', 'IONO2': 'TRA_60', 'I2O3': 'TRA_70', 'INO': 'TRA_69','REA_327': 'HO + CH3IT => H2O + I (CH2I)', 'REA_378': 'HI => .5I2', 'REA_325': 'IO + CH3O2 =(M)> I + HO2 + HCHO', 'REA_324': 'OIO + OH => HIO3', 'REA_373': 'I2O3 + I2O4 => 4AERI', 'REA_322': 'IO + IO (O2) =>I2O2', 'REA_363': 'I2O2 =(M)> IO + IO', 'REA_320': 'IO + IO (O2) => I + OIO', 'REA_309': 'I + O3 => IO + O2', 'REA_362': 'OIO + OIO => I2O4', 'REA_360': 'IO + OIO =(M)> I2O3', 'REA_367': 'I2O2 + O3 => I2O3 +O2', 'REA_369': 'I2O4 + O3 => I2O5 + O2', 'REA_365': 'I2O2 =(M)> OIO + I', 'REA_328': 'I + NO <=(M)> INO', 'REA_368': 'I2O3 + O3 => I2O4 +O2', 'REA_444': 'IONO =(hv)> I + NO2', 'REA_370': 'I2O4 =(M)> 2OIO', 'REA_446': 'I2O2 => IO + IO', 'REA_440': 'I2 =(hv)> 2I', 'REA_451': 'INO => I + NO', 'REA_447': 'CH3IT =>  <CH3 +I>', 'REA_441': 'HOI =(hv)> I + OH', 'REA_448': 'CH2I2 => <CH2 + I +I >', 'REA_332': 'I + NO2 <=(M)> IONO', 'REA_379': 'IONO2 => 0.5I2', 'REA_449': 'IBr =(hv)> I + Br', 'REA_445': 'IONO2 =(hv)> I + NO3', 'REA_375': 'I2O4 + I2O4 => 4AERI', 'REA_352': 'IO + BrO => Br + I + O2', 'REA_353': 'IO + BrO => Br +OIO', 'REA_350': 'IO + ClO => I + Cl + O2', 'REA_351': 'IO + ClO => I + OClO', 'REA_356': 'ICl + OH => HOCl  +I', 'REA_357': 'IBr + Br => I + Br2', 'REA_354': 'ICl + Cl => Cl2 + I', 'REA_355': 'ICL + Br => BrCl + I', 'REA_358': 'IBr + OH => HOI + Br', 'REA_359': 'IBr + OH => HOBr + I', 'REA_372': 'I2O3 + OIO => 3AERI', 'REA_334': 'IONO =(delta)> I + NO2', 'REA_335': 'IONO + IONO => I2 + 2NO2', 'REA_336': 'I2 + NO3 => I + IONO2', 'REA_337': 'IO + NO2 => IONO2', 'REA_330': 'INO =(delta)> NO + I', 'REA_331': 'INO + INO => I2 + 2NO', 'REA_318': 'IO + HO2 => HOI + O2', 'REA_319': 'IO + NO => I + NO2', 'REA_316': 'HI + OH => I + H2O', 'REA_317': 'HOI + OH => IO + H2O', 'REA_314': 'I + I2O => IO + I2', 'REA_315': 'I2 + OH => HOI + I', 'REA_374': 'I2O4 + OIO => 3AERI', 'REA_313': 'I + IO => I2O', 'REA_310': 'I + HO2 => HI + O2', 'REA_311': 'I + I =(M)> I2', 'REA_376': 'OIO + NO => NO2 + IO', 'REA_377': 'IO => .5I2', 'REA_442': 'IO =(hv)> I + O3', 'REA_450': 'ICl =(hv)> I + Cl', 'REA_339': 'IONO2 + I = I2 + NO3', 'REA_345': 'I2 + Br => I + IBr', 'REA_344': 'I2 + Cl => I + ICl', 'REA_347': 'IO + Cl => I + ClO', 'REA_346': 'I2 +BrO => IO + IBr', 'REA_340': 'IONO2 =(M)> IO + NO2', 'REA_343': 'I + BrO => IO + Br', 'REA_342': 'I + Br2 => Br + IBr', 'REA_381': '"HIO3 => AERI ( ""aerosol"")"', 'REA_380': '"OIO => AERI (""aerosol"")"', 'REA_383': 'HOI =>0.5I2', 'REA_382': 'I2O5 => 2AERI', 'REA_349': 'IO + ClO => ICl + O2', 'REA_348': 'IO + Br => I + BrO', 'REA_443': 'OIO =(hv)> I + O2(M)','PD59': 'IONO2 => 0.5I2', 'PD58': 'HI => .5I2', 'PD57': 'IO => .5I2', 'PD56': 'OIO + NO => NO2 + IO', 'PD55': 'I2O4 + I2O4 => 4AERI', 'PD54': 'I2O4 + OIO => 3AERI', 'PD53': 'I2O3 + I2O4 => 4AERI', 'PD52': 'I2O3 + OIO => 3AERI', 'PD51': 'I2O4 =(M)> 2OIO', 'PD50': 'I2O4 + O3 => I2O5 + O2', 'PD70': 'I2O2 => IO + IO', 'PD63': 'HOI =>0.5I2', 'PD69': 'IONO2 =(hv)> I + NO3', 'PD67': 'OIO =(hv)> I + O2(M)', 'PD62': 'I2O5 => 2AERI', 'PD71': 'CH3IT =>  <CH3 +I>', 'PD49': 'I2O3 + O3 => I2O4 +O2', 'PD39': 'ICL + Br => BrCl + I', 'PD38': 'ICl + Cl => Cl2 + I', 'PD60': '"OIO => AERI (""aerosol"")"', 'PD01': 'I + O3 => IO + O2', 'PD02': 'I + HO2 => HI + O2', 'PD03': 'I + I =(M)> I2', 'PD04': 'I + IO => I2O', 'PD05': 'I + I2O => IO + I2', 'PD06': 'I2 + OH => HOI + I', 'PD07': 'HI + OH => I + H2O', 'PD08': 'HOI + OH => IO + H2O', 'PD09': 'IO + HO2 => HOI + O2', 'PD24': 'IONO2 + I = I2 + NO3', 'PD25': 'IONO2 =(M)> IO + NO2', 'PD22': 'I2 + NO3 => I + IONO2', 'PD23': 'IO + NO2 => IONO2', 'PD20': 'IONO =(delta)> I + NO2', 'PD21': 'IONO + IONO => I2 + 2NO2', 'PD68': 'IONO =(hv)> I + NO2', 'PD47': 'I2O2 =(M)> OIO + I', 'PD48': 'I2O2 + O3 => I2O3 +O2', 'PD28': 'I2 + Cl => I + ICl', 'PD75': 'INO => I + NO', 'PD44': 'IO + OIO =(M)> I2O3', 'PD45': 'OIO + OIO => I2O4', 'PD46': 'I2O2 =(M)> IO + IO', 'PD29': 'I2 + Br => I + IBr', 'PD40': 'ICl + OH => HOCl  +I', 'PD41': 'IBr + Br => I + Br2', 'PD42': 'IBr + OH => HOI + Br', 'PD43': 'IBr + OH => HOBr + I', 'PD26': 'I + Br2 => Br + IBr', 'PD64': 'I2 =(hv)> 2I', 'PD27': 'I + BrO => IO + Br', 'PD65': 'HOI =(hv)> I + OH', 'PD74': 'ICl =(hv)> I + Cl', 'PD33': 'IO + ClO => ICl + O2', 'PD61': '"HIO3 => AERI ( ""aerosol"")"', 'PD72': 'CH2I2 => <CH2 + I +I >', 'PD32': 'IO + Br => I + BrO', 'PD66': 'IO =(hv)> I + O3', 'PD73': 'IBr =(hv)> I + Br', 'PD13': 'OIO + OH => HIO3', 'PD12': 'IO + IO (O2) =>I2O2', 'PD11': 'IO + IO (O2) => I + OIO', 'PD10': 'IO + NO => I + NO2', 'PD17': 'INO =(delta)> NO + I', 'PD16': 'I + NO <=(M)> INO', 'PD15': 'HO + CH3IT => H2O + I (CH2I)', 'PD14': 'IO + CH3O2 =(M)> I + HO2 + HCHO', 'PD31': 'IO + Cl => I + ClO', 'PD30': 'I2 +BrO => IO + IBr', 'PD19': 'I + NO2 <=(M)> IONO', 'PD18': 'INO + INO => I2 + 2NO', 'PD35': 'IO + ClO => I + OClO', 'PD34': 'IO + ClO => I + Cl + O2', 'PD37': 'IO + BrO => Br +OIO', 'PD36': 'IO + BrO => Br + I + O2','IONO2_hv': 'REA_445', 'ICl_hv': 'REA_450', 'CH2I2_hv': 'REA_448', 'IBr_hv': 'REA_449', 'IONO_hv': 'REA_444', 'OIO_hv': 'REA_443', 'IO_hv': 'REA_442', 'I2O2_hv': 'REA_446', 'INO_hv': 'REA_451', 'CH3IT_hv': 'REA_447', 'HOI_hv': 'REA_441', 'I2_hv': 'REA_440', 'NO2_hv': 'REA_385', 'BrNO2_hv': 'REA_438', 'NO3_hv_II': 'REA_394', 'BrNO3_hv_II': 'REA_437', 'O3_hv': 'REA_384', 'NO3_hv': 'REA_393', 'CH3Br_hv': 'REA_439', 'HOBr_hv': 'REA_435', 'HONO_hv': 'REA_391', 'Br2_hv': 'REA_433', 'BrNO3_hv': 'REA_436', 'BrO_hv': 'REA_434','REA_247': 'O3 emission', 'REA_391': 'HONO =(hv)>', 'REA_150': 'O3 + PRPE =>', 'REA_249': 'CH3Br emission', 'REA_152': 'O3 + PMN =>', 'REA_437': 'BrNO3 =(hv)>BrO +NO2', 'REA_436': 'BrNO3 =(hv)> Br + NO3', 'REA_435': 'HOBr =(hv)>', 'REA_434': 'BrO =(hv)>', 'REA_433': 'Br2 =(hv)>', 'REA_439': 'CH3Br =(hv)>', 'REA_438': 'BrNO2 =(hv)>Br + NO2', 'REA_394': 'NO3 =(hv)> ONO + O2', 'REA_393': 'NO3 =(hv)> NO2 + O3', 'REA_1': 'O3 + NO =>', 'REA_2': 'O3 + OH =>', 'REA_3': 'O3 +HO2 =>', 'REA_4': 'O3 + NO2 =>', 'REA_251': 'Br2 emission', 'REA_197': 'O3 + IALD =>', 'REA_169': 'O3 + MACR =>', 'REA_168': 'O3 + MVK =>', 'REA_254': 'I2 emission', 'REA_253': 'CH2I2 emission', 'REA_252': 'CH3IT emission', 'REA_277': 'Br + O3 =>', 'REA_250': 'CH2Br2 emission', 'REA_279': 'Br + OH2 =>', 'REA_278': 'Br + OH =>', 'REA_167': 'O3 + ISOP =>', 'REA_385': 'NO2 =(hv)>', 'REA_384': 'O3 =(hv)> OH + OH', 'REA_248': 'HNO3 emission', 'TRA_80':'CH2ICl', 'TRA_81': 'CH2IBr', 'TRA_83': 'C3H5I','TRA_82': 'C3H7I'}
+    return TRA_lib[x]
 
-    # -- remove 'Family' 
-    rxns = [ i for i in rxns if (  'Family' not in i ) ]
-    n = [int(rxn[1]) for rxn in rxns ]
-    rxns = [rxn[2:] for rxn in rxns ]
 
-    rdict = dict( zip(n, rxns) )
-    return rdict
 
-# -------------
-# 1.14 - Get tags for reactions
-# ------------- 
-def get_p_l_tags( rxns ):
 
-    # (PD??, RD??, LO3_??, PO3_??, LR??)
-    for rxn in rxns:
-#        print rxn
-#        print [ i for i in rxn if  any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
-        tags =  [i for i in rxn if any( [x in i for x in 'PD', 'RD', 'PO3','LO3' , 'LR' ]) ]
-        try:
-            tagsl.append( tags)
-        except:
-            tagsl = [tags]
 
-    return tagsl
-
-# -------------
-# 1.15 - Get prod loss reactions for a given family.
-# ------------- 
-def prod_loss_4_spec( wd, spec ):
-    # ---  Get Dict of all reactions, Keys = #s
-    rdict = rxn_dict_from_smvlog(wd)
-
-    # ---  Get reaction # tracked by p/l diag for spec and coefficient.
-    rxns = rxns_in_pl(wd, spec)
-    nums =  rxns.keys() 
-    Coe = [ rxn[-1] for rxn in rxns.values() ]
-
-    # --- get all details from full reaction dictionary
-    rxns =  [ rdict[i] for i in nums ]
-
-    # --- get tags for tracked reactions, state where reactions are un tracked
-    tags = get_p_l_tags( rxns )
-
-    return nums, rxns, tags, Coe
-
-# -------------
-# 1.16 - extract reactions to form a dictionary of active reactions
-# ------------- 
-def rxn_dict_from_smvlog( wd, spec='LOX' ):
-    fn =  'smv2.log'
-    file_ =  open( wd+'/'+fn, 'rb' )
-    readrxn  = False
-    for row in file_:
-        row = row.split()
-        if 'NMBR' in row:
-            readrxn=True
-        if len(row) < 1 :
-            readrxn=False
-        if  readrxn:
-            try:
-                rxns.append( row )
-            except:
-                rxns = [ row ]          
-
-    # -- remove 'NMBR'
-    rxns = [ i for i in rxns if (  'NMBR' not in i ) ]
-    n = [int(rxn[0]) for rxn in rxns ]
-    rxns = [rxn[1:] for rxn in rxns ]
-    rdict = dict( zip(n, rxns) )
-    return rdict
-    
