@@ -1,19 +1,32 @@
 # ------------  MChem Tools - tms -------------------------------------
 # --------------  
 # ---- Section 0 ----- Modules required
-import pygchem.diagnostics as gdiag
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
-import numpy as np
+
+# I/O
 import os
 import glob
-import datetime as datetime 
 import csv
 import sys
+import pygchem
+if pygchem.__version__ == '0.2.0':
+    import pygchem.diagnostics as gdiag
+else:
+    # standard code or dev branch?
+    try:
+        from pygchem import datasets
+    except:
+        import pygchem.datafields as datasets
+
+
+# Plotting/Analysis
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+import datetime as datetime 
+import numpy as np
 
 # --------------- ------------- ------------- ------------- ------------- 
 # ---- Section 1 ----- Core Programmes
-# 1.01 - Open ctm.bpch 
+# 1.01 - Open ctm.bpch  ( pygchem version 0.2.0)
 # 1.02 - Get np array (4D) of ctm.bpch ( lon, lat, alt, time)
 # 1.03 - Get Air mass 
 # 1.04 - Plot up GEOS-Chem slice
@@ -21,6 +34,7 @@ import sys
 # 1.07 - incremental increase datetime by given months - credit: Dave Webb
 # 1.08 - processes provided files to extract data/names
 # 1.09 - date specific (Year,Month,Day) planeflight output reader 
+# 1.10 - Get var data for model run ( pygchem version > 0.3.0)
 
 # --------------- ------------- ------------- ------------- ------------- 
 # ---- Section 2 ----- Generic Tools
@@ -42,20 +56,24 @@ import sys
 # 4.01 - Class for holding extra Geos-Chem (GC) species data.
 # 4.02 - GEOS-Chem species in latex form
 # 4.03 - What GEOS-Chem (GC) Species am i? takes TRA_## & returns GC ID - setup for tms iodine tracer # > 53 (v9-01-03/v9-2 - iodine branch)
-# 4.04 - Reference data (from GChem - credit: Gerrit Kuhlmann)
-# 4.99 - Retrieve lat, lon and alt for a given resolution and region.
+# 4.04 - Retrieve lat, lon and alt for a given resolution and region.
+# 4.05 - Get CTM (GEOS-Chem) array dimension for a given resolution
+# 4.06 - Convert gamap category/species name to Iris/bpch name
+# 4.07 - Returns tracers unit and scale (if requested)
+# 4.99 - Reference data (from GChem - credit: Gerrit Kuhlmann)
 
 # --------------- ------------- ------------- ------------- ------------- 
 # ---- Section 1 ----- Core Programmes
+
 # --------------                                                                                 
-# 1.01 - open ctm.bpch using PyGChem                                                             
+# 1.01 - open ctm.bpch using PyGChem <= REDUNDENT
 # --------------                                                                                
 def open_ctm_bpch(wd, bpch_fname='ctm.bpch'):
     ctm_f = gdiag.CTMFile.fromfile(os.path.join(wd, bpch_fname))
     return ctm_f
 
 # --------------                                                                                 
-# 1.02 - get np array (4D) of ctm.bpch ( lon,lat , alt,time)                                     
+# 1.02 - get np array (4D) of ctm.bpch ( lon,lat , alt,time) <= REDUNDENT                         
 # --------------                                                                                
 def get_gc_data_np(ctm_f, species,category="IJ-AVG-$", debug=False):
     if (debug):
@@ -78,7 +96,7 @@ def get_gc_data_np(ctm_f, species,category="IJ-AVG-$", debug=False):
     return np_scalar
 
 # --------------
-# 1.03 - get air mass (4D) numpy array
+# 1.03 - get air mass (4D) numpy array <= REDUNDENT 
 # -------------       
 def get_air_mass_np(ctm_f, times=None, debug=False):
     if (debug):
@@ -104,19 +122,19 @@ def get_air_mass_np(ctm_f, times=None, debug=False):
 # -----                                                                                                            
 # 1.04 - plot geos slice                                                                                           
 # -----                                                                                                            
-def plot_geos_alt_slice(scalar, **Kwargs):
+def map_plot(scalar, species=None, unit=None, **Kwargs):
+
     # Setup slices                                                                                                 
     # Grid/Mesh values for Lat, lon, & alt                                                                         
-    lon = gchemgrid('e_lon_4x5')
-    lat = gchemgrid('e_lat_4x5')
-    alt = gchemgrid('c_km_geos5_r')#'e_km_geos5_r')#'c_km_geos5_r')                                                
-    units= 'ppbv'#diag.unit                                                                                        
+    lon, lat, alt = get_latlonalt4res( res='4x5' )
+
     # Setup mesh grids                                                                                             
     x, y = np.meshgrid(lon,lat)
     print len(x), len(y)
 
     plt.ylabel('Latitude', fontsize = 20)
     plt.xlabel('Longitude',fontsize = 20)
+    plt.title( '{} / {} '.format( latex_spec_name( species ), unit ) )
 
     # Setup map ("m") using Basemap                                                                                
     m = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
@@ -273,6 +291,137 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
         sys.exit( 0 )
         
     return big, names
+
+
+# ----
+# 1.10 - Get var data for model run
+# ---
+def get_GC_output( wd, vars=None, species=None, category=None, 
+            r_cubes=False, r_res=False, restore_zero_scaling=True, 
+            trop_limit=False, debug=False):
+    """
+        Data extractor for GEOS-Chem using pygchem (>= 0.3.0 )
+        ( Credit: Ben Bovy -  https://github.com/benbovy/PyGChem )
+
+        ctm.bpch files are extracted for a given directory, with only 
+        the specific category and species returned. This can either be as
+        a Iris Cube (retaining metadata) or as a numpy array.
+
+            - To return Iris Cubes, set r_cubes to True
+            - To get resolution of model run, set r_res to True
+
+        For simplicity use variable names (species, category) as used in 
+        the iris cube ( e.g. IJ_AVG_S__CO). if variable is unknown, just 
+        print full dataset extracted to screen to see active diagnostics. 
+
+        Species and category variables are maintained ( and translated ) 
+        to allow for backwards compatibility with functions written for 
+        pygchem version 0.2.0
+        
+        This replaces the now defunct functions: open_ctm_bpch 
+        and get_gc_data_np.
+
+        Examples and use of pygchem is discussed on Ben Bovy's GITHib 
+        https://github.com/benbovy/PyGChem_examples/blob/master/Tutorials/Datasets.ipynb        
+    """
+    
+    if debug:
+        print 'Opening >{}<, for var: >{}<'.format( wd, ','.join(vars) ) +   \
+            '(additional) gamap variables provided: >{}< + >{}<'.format( \
+            category, species )
+                
+    # Temporary fix for back compatibility: 
+    # Convert gamap names ( species  + category ) to iris cube names
+    # Just for use whilst updating functions written to use pygchem 0.2.0
+    if not any( [ isinstance(i, type(None) ) for i in species, category ] ):
+        # convert to Iris Cube name
+        if (category == None) and ( vars ==  None ):
+            category = "IJ-AVG-$"
+        if (species == None) and ( vars ==  None ):
+            species =  'O3'
+    
+        # remove scaling for 'IJ-AVG-$' - KLUDGE - needed for all ?
+        if category == 'IJ-AVG-$':
+            category = diagnosticname_gamap2iris( category )
+
+        # setup var for Iris Cube, then remove known rm. chars.
+        var = category+'__'+species
+        vars=  [ var.replace('-', '_').replace('$', 'S') ]
+
+        pass
+    else:
+        # Get default settings for reader
+        if isinstance(vars, type(None)):
+            vars = [ 'IJ_AVG_S__O3'  ]
+
+    # ensure wd has a leading '/'
+    if wd[-1] != '/':
+        wd +=  '/'
+
+    # Get files in dir ( more than one? )
+    fns = sorted( glob.glob( wd+ '*ctm*' ) )
+    if debug:
+        print fns
+
+    # Load files into Iris Cube
+    cubes = datasets.load( fns, vars )
+
+    # If no data extracted, print our variables
+    try:
+        [ i[0].data for i in cubes ]
+    except:
+        print datasets.load( fns[0] )
+        print 'WARNING: no vars found for >{}<'.format( ','.join(vars) )
+        sys.exit( 0 )
+        
+    # Temporary fix for back compatibility: 
+    # Just extract as numpy 
+
+    if not r_cubes:
+
+        # Extract data
+        arr = [ cubes[i].data for i in range( len(vars) ) ]
+
+        # Limit to GEOS-Chem "chemical troposphere'
+        if trop_limit:
+            arr = [ i[...,:38] for i in arr]
+
+        # convert to GC standard 4D fmt. - lon, lat, alt, time 
+        if len((arr[0].shape)) == 4:
+            if debug:
+                print [i.shape for i in arr]
+            arr = [np.rollaxis(i,0, 4) for i in arr]
+            if debug:
+                print [i.shape for i in arr]
+
+        # For multiple vars, concatenate to var, lon, lat, lat, time 
+        if len(vars) >1:
+            arr = np.concatenate( [ i[None,...] for i in arr ], axis=0 )
+        else:
+            arr =arr[0]
+            
+        # Add altitude dimension to 2D (lon, lat)
+        # a bug might occur for emission etc ( where lon, lat, time are dims )
+        if len((arr.shape)) == 2:
+            arr =arr[...,None]
+
+    # Get res by comparing 1st 3 dims. against dict of GC dims.
+    if r_res:
+        res=get_dims4res( r_dims=True )[arr.shape[:3]]
+
+    # Sort output - return Cubes?
+    if r_cubes:
+        output =  cube
+    else:
+        output = arr
+#        return cube.data
+
+    # Return model resolution? 
+    if r_res:
+        return output, res
+    else:
+        return output
+
 
 # --------------- ------------- ------------- ------------- ------------- 
 # ---- Section 2 ----- Generic Tools
@@ -519,6 +668,65 @@ def get_latlonalt4res(res='4x5', centre=True, hPa=False, nest=None, \
     if debug:
         print lon, lat, alt
     return  [ d[i] for i in lon, lat, alt ]
+
+# --------   
+# 4.05 - Get CTM (GEOS-Chem) array dimension for a given resolution
+# --------
+def get_dims4res(res=None, r_dims=False, invert=True, trop_limit=False):
+    dims = {
+    '4x5' :  (72,46,47), 
+    '2x2.5':(144,91,47) , 
+    '0.5x0.666':(121,81,47) 
+    }
+    if trop_limit:
+        dims = list(dims)
+        dims[-1]= 38
+    if r_dims:
+        if invert==True:
+            return {v: k for k, v in dims.items()}
+        else:
+            return dims
+    else:
+        return dims[res ]
+
+# --------   
+# 4.06 - Convert gamap category/species name to Iris/bpch name
+# --------
+def diagnosticname_gamap2iris( x  ):
+    d={
+    "IJ-AVG-$": 'IJ_AVG_S'
+    }
+    return d[x]
+
+# --------------
+#  4.07 - Returns tracer's unit (and scale if requested)
+# --------------
+def tra_unit(x, scale=False, debug=False ):
+    tra_unit = {
+    'OCPI': 'ppbv', 'OCPO': 'ppbv', 'PPN': 'ppbv', 'HIO3': 'pptv', 'O3': 'ppbv', 'PAN': 'ppbv', 'ACET': 'ppbC', 'RIP': 'ppbv', 'BrNO3': 'pptv', 'Br': 'pptv', 'HBr': 'pptv', 'HAC': 'ppbv', 'ALD2': 'ppbC', 'HNO3': 'ppbv', 'HNO2': 'ppbv', 'C2H5I': 'pptv', 'HNO4': 'ppbv', 'OIO': 'pptv', 'MAP': 'ppbv', 'PRPE': 'ppbC', 'HI': 'pptv', 'CH2I2': 'pptv', 'IONO2': 'pptv', 'NIT': 'ppbv', 'CH3Br': 'pptv', 'C3H7I': 'pptv', 'C3H8': 'ppbC', 'DMS': 'ppbv', 'CH2O': 'ppbv', 'CH3IT': 'pptv', 'NO2': 'ppbv', 'NO3': 'ppbv', 'N2O5': 'ppbv', 'CHBr3': 'pptv', 'DST4': 'ppbv', 'DST3': 'ppbv', 'DST2': 'ppbv', 'DST1': 'ppbv', 'HOCl': 'ppbv', 'NITs': 'ppbv', 'RCHO': 'ppbv', 'C2H6': 'ppbC', 'MPN': 'ppbv', 'INO': 'pptv', 'MP': 'ppbv', 'CH2Br2': 'pptv', 'SALC': 'ppbv', 'NH3': 'ppbv', 'CH2ICl': 'pptv', 'IEPOX': 'ppbv', 'ClO': 'ppbv', 'NO': 'pptv', 'SALA': 'ppbv', 'MOBA': 'ppbv', 'R4N2': 'ppbv', 'BrCl': 'pptv', 'OClO': 'ppbv', 'PMN': 'ppbv', 'CO': 'ppbv', 'CH2IBr': 'pptv', 'ISOP': 'ppbC', 'BCPO': 'ppbv', 'MVK': 'ppbv', 'BrNO2': 'pptv', 'IONO': 'pptv', 'Cl2': 'ppbv', 'HOBr': 'pptv', 'PROPNN': 'ppbv', 'Cl': 'ppbv', 'I2O2': 'pptv', 'I2O3': 'pptv', 'I2O4': 'pptv', 'I2O5': 'pptv', 'MEK': 'ppbC', 'MMN': 'ppbv', 'ISOPN': 'ppbv', 'SO4s': 'ppbv', 'I2O': 'pptv', 'ALK4': 'ppbC', 'MSA': 'ppbv', 'I2': 'pptv', 'Br2': 'pptv', 'IBr': 'pptv', 'MACR': 'ppbv', 'I': 'pptv', 'AERI': 'pptv', 'HOI': 'pptv', 'BrO': 'pptv', 'NH4': 'ppbv', 'SO2': 'ppbv', 'SO4': 'ppbv', 'IO': 'pptv', 'H2O2': 'ppbv', 'BCPI': 'ppbv', 'ICl': 'pptv', 'GLYC': 'ppbv',
+    # Extra diagnostics to allow for simplified processing 
+    'CH3I':'pptv', 'Iy':'pptv', 'PSURF': 'hPa', 'OH':'pptv', 'HO2':'pptv', 'TSKIN':'K', 'GMAO_TEMP': 'K', 'GMAO_VWND' :'m/s','GMAO_UWND': 'm/s', 'RO2': 'pptv', 'U10M':'m/s','V10M': 'm/s' 
+    } 
+    units = tra_unit[x]
+
+    if scale: 
+        scaleby= get_unit_scaling( units )
+    if scale:
+        return units, scaleby
+    else:
+        return units
+
+# --------   
+# 4.14 - Get scaling for a given unit
+# --------
+def get_unit_scaling( units ):
+    if any( [ (units ==  i) for i in 'pptv', 'pptC' ]):
+        scaleby = 1E12
+    if any( [ (units ==  i) for i in 'ppbv', 'ppbC' ]):
+        scaleby = 1E9
+    if any( [units ==i for i in  'K', 'm/s'  ] ):
+        scaleby = 1
+    return scaleby
 
 # --------------
 # 4.99 - Reference data, (inc. grid data) from GChem - credit: GK (Gerrit Kuhlmann )
