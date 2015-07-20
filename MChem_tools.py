@@ -329,6 +329,12 @@ def get_GC_output( wd, vars=None, species=None, category=None,
         print 'Opening >{}<, for var: >{}<'.format( wd, ','.join(vars) ) +   \
             '(additional) gamap variables provided: >{}< + >{}<'.format( \
             category, species )
+
+    # Error catch for older pygchem versions
+    if pygchem.__version__ == '0.2.0':
+        print 'WARNING: using {}, to extact ctm.bpch files'.format( pygchem.__version__) )+ \
+            'using this dist. please use funcs: open_ctm_bpch and get_gc_data_np' 
+        sys.exit( 0 )
                 
     # Temporary fix for back compatibility: 
     # Convert gamap names ( species  + category ) to iris cube names
