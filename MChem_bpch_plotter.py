@@ -6,14 +6,14 @@ import sys
 
 # Setup, choose species
 species  = 'O3'#'CO2'
-RMM_species 	= 16.*3.
-res = '2x2.5'
+RMM_species = 16.*3.
+res = '2x2.5'#res = '4x5'
 unit, scale = tra_unit( species, scale=True)
 
 try:    # chcck if a directory was given ad command line
-	wd    = sys.argv[1]
+    wd = sys.argv[1]
 except: # Otherwise use path below
-	wd    = '<insert GEOS-Chem run direcotory path here>'
+    wd = '<insert GEOS-Chem run direcotory path here>'
 
 # get data as 4D array ( lon, lat, alt, time ) 
 mixing_ratio  = get_GC_output( wd, species=species, category='IJ-AVG-$' ) 
