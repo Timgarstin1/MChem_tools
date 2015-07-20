@@ -332,7 +332,7 @@ def get_GC_output( wd, vars=None, species=None, category=None,
 
     # Error catch for older pygchem versions
     if pygchem.__version__ == '0.2.0':
-        print 'WARNING: using {}, to extact ctm.bpch files'.format( pygchem.__version__) )+ \
+        print 'WARNING: using {}, to extact ctm.bpch files'.format( pygchem.__version__) + \
             'using this dist. please use funcs: open_ctm_bpch and get_gc_data_np' 
         sys.exit( 0 )
                 
