@@ -122,11 +122,11 @@ def get_air_mass_np(ctm_f, times=None, debug=False):
 # -----                                                                                                            
 # 1.04 - plot geos slice                                                                                           
 # -----                                                                                                            
-def map_plot(scalar, species=None, unit=None, **Kwargs):
+def map_plot(scalar, species=None, unit=None, res='4x5', **Kwargs):
 
     # Setup slices                                                                                                 
     # Grid/Mesh values for Lat, lon, & alt                                                                         
-    lon, lat, alt = get_latlonalt4res( res='4x5' )
+    lon, lat, alt = get_latlonalt4res( res=res )
 
     # Setup mesh grids                                                                                             
     x, y = np.meshgrid(lon,lat)

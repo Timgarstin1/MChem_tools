@@ -7,6 +7,7 @@ import sys
 # Setup, choose species
 species  = 'O3'#'CO2'
 RMM_species 	= 16.*3.
+res = '2x2.5'
 unit, scale = tra_unit( species, scale=True)
 
 try:    # chcck if a directory was given ad command line
@@ -42,5 +43,5 @@ mixing_ratio = np.transpose( mixing_ratio )
 print mixing_ratio.shape
 
 # plot surface
-plt, cb = map_plot( mixing_ratio, species, unit )
+plt, cb = map_plot( mixing_ratio, species, unit, res=res )
 plt.show()
