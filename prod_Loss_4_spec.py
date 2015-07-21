@@ -3,15 +3,19 @@ import re
 import sys
 
 # ---- Get inputs from command line/defaults
-try:    # chcck if a directory was given ad command line
-    wd    = sys.argv[1]
+try:    # chcck if a directory was given at command line
+    wd = sys.argv[1]
 except: # Otherwise use path below
-    wd    = '<insert GEOS-Chem run direcotory path here>'
+    wd = '<insert GEOS-Chem run direcotory path here>'
+
+try:    # chcck if a species was given at command line
+    spec = sys.argv[2]
+except: # Otherwise use path below
+    spec = 'LOX' 
+    #spec = 'POX' 
+    #spec =  'PIOx'#'LIOx'#'L2OI'#'L_Iy' #'P_Iy'
 
 # --- Settings
-#spec = 'LOX' 
-spec = 'POX' 
-#spec =  'PIOx'#'LIOx'#'L2OI'#'L_Iy' #'P_Iy'
 nums, rxns, tags, Coe = prod_loss_4_spec( wd,  spec )
 rdict =  rxn_dict_from_smvlog( wd )
 diagnose = False

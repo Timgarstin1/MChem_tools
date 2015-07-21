@@ -9,6 +9,8 @@ species  = 'O3'#'CO2'
 RMM_species = 16.*3.
 res = '2x2.5'#res = '4x5'
 unit, scale = tra_unit( species, scale=True)
+# Only consider GEOS-Chem chemical troposphere
+trop_limit= True
 
 try:    # chcck if a directory was given ad command line
     wd = sys.argv[1]
@@ -16,9 +18,13 @@ except: # Otherwise use path below
     wd = '<insert GEOS-Chem run direcotory path here>'
 
 # get data as 4D array ( lon, lat, alt, time ) 
-mixing_ratio  = get_GC_output( wd, species=species, category='IJ-AVG-$' ) 
-air_mass = get_GC_output( wd, vars=['BXHGHT_S__AD'] )
-time_in_trop = get_GC_output( wd, vars=['TIME_TPS__TIMETROP'] )
+mixing_ratio  = get_GC_output( wd, species=species, category='IJ-AVG-$', \
+    trop_limit=trop_limit ) 
+air_mass = get_GC_output( wd, vars=['BXHGHT_S__AD'], \
+    trop_limit=trop_limit )
+time_in_trop = get_GC_output( wd, vars=['TIME_TPS__TIMETROP'],
+     trop_limit=trop_limit )
+print [i.shape for i in mixing_ratio, air_mass, time_in_trop ]
 
 # calc the total & mean mass of a speices - select data you want to calc & print
 # mass (convert to g) / RMM air
