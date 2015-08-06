@@ -3,7 +3,7 @@ MChem_tools
 
 Tools for MJE MChems
 
-- MChem_plotter.py
+- MChem_bpch_plotter.py
 
 GEOS-Chem ctm.bpch plotter using PyGChem 
 
@@ -15,17 +15,23 @@ GEOS-Chem planeflight output plotter
 
 Tool for converting multiple bpch files to a single netCDF 
 
-- MChem_tools.py
-
-Module containing functions for programmes above 
-
 - Prod_Loss_4_spec.py 
 
 GEOS-Chem smvgear analyser of prod/loss for reaction tag or "spec" 
 
+- MChem_tools.py
+
+Module containing functions for programmes above 
+
+
+
+
 Requires:
 
 PyGChem: https://github.com/benbovy/PYGChem
+
+Scientific python modules e.g. Annoconda ( https://store.continuum.io/cshop/anaconda/  )
+
 
 Notes for use:
 
