@@ -41,3 +41,7 @@ Where MChem_tools is the location you downloaded the MChem_tools folder.
 # Add MChem_tools
 export PYTHONPATH=${PYTHONPATH}:$HOME/MChem_tools
 
+Monthly Run
+===========
+
+Script to split GEOS-Chem run into monthly jobs is in directory 'monthly_run'. See speereate README in dricetory for more details.
