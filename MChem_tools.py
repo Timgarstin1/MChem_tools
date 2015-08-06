@@ -366,6 +366,8 @@ def get_GC_output( wd, vars=None, species=None, category=None,
 
     # Get files in dir ( more than one? )
     fns = sorted( glob.glob( wd+ '*ctm*' ) )
+    if len(fns) == 0:
+        fns = sorted( glob.glob(wd + '*trac_avg*') )
     if debug:
         print fns
 
@@ -386,7 +388,12 @@ def get_GC_output( wd, vars=None, species=None, category=None,
     if not r_cubes:
 
         # Extract data
-        arr = [ cubes[i].data for i in range( len(vars) ) ]
+        try:
+            arr = [ cubes[i].data for i in range( len(vars) ) ]
+        except:
+            print 'WARNING: length of extracted data array < vars'
+            print 'vars: >{}<'.format( ','.join(vars) )
+            sys.exit( 0 )
 
         # Limit to GEOS-Chem "chemical troposphere'
         if trop_limit:
@@ -918,5 +925,3 @@ def gchemgrid(input=None, return_dict=False, debug=False):
     else:
         return d[input]
 
-
-   
