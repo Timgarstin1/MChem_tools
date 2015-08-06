@@ -9,4 +9,13 @@ Tools for MJE MChems
 
 - Module containing functions for programmes above ( MChem_tools.py )
 
+<<<<<<< HEAD
 - Tool for converting multiple bpch files to a single netCDF (bpch2netCDF.py)
+=======
+- GEOS-Chem smvgear analyser of prod/loss for reaction tag or "spec" ( Prod_Loss_4_spec.py ) 
+
+Requires:
+
+PyGChem: https://github.com/benbovy/PYGChem
+
+>>>>>>> 7d8b30732a6eb73eee495b0ce085eef1af406aa1
