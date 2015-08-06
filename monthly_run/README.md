@@ -10,8 +10,11 @@ BASH run_geos.sh
 
 The script has a UI to chose job name, queue name, priority, if you want to start month jobs outside of work hours, and if you want to have the script submit the job to the queue.
 
-The script can also take command line arguments. Type monthly_run.py --help for more info
+The script can also take command line arguments. "Type monthly_run.py --help" for more info
 monthly_run.py --job-name=bob --queue-name=run --queue-priotiry=100 --out-of-hours=yes --submit=yes
+
+Suggestion:
+Create a symolic link between monthly_run.py and $HOME/bin/monthly_run so that you can just write monthly_run from any location.
 
 Explination:
 This will call the job bob in the queue. It will be submitted to the run queue with a priority of 100. The jobs will only start out of hours. If the job starts in working hours it will resubmit itself with a command to wait until 1800. The job will be submitted at the end of the script.
