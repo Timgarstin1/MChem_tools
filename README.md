@@ -20,3 +20,10 @@ Requires:
 PyGChem: https://github.com/benbovy/PYGChem
 
 >>>>>>> 7d8b30732a6eb73eee495b0ce085eef1af406aa1
+
+To be able to access these modules from any place, add the following to your $HOME/.bashrc file:
+Where MChem_tools is the location you downloaded the MChem_tools folder.
+
+# Add MChem_tools
+export PYTHONPATH=${PYTHONPATH}:$HOME/MChem_tools
+
