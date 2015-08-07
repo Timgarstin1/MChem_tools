@@ -7,6 +7,8 @@ import os
 import glob
 import csv
 import sys
+from netCDF4 import Dataset
+# import PyGChem ( + allow for back compatibility )
 import pygchem
 if pygchem.__version__ == '0.2.0':
     import pygchem.diagnostics as gdiag
@@ -298,7 +300,7 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
 # ---
 def get_GC_output( wd, vars=None, species=None, category=None, 
             r_cubes=False, r_res=False, restore_zero_scaling=True, 
-            trop_limit=False, debug=False):
+            trop_limit=False, use_NetCDF=True, debug=False):
     """
         Data extractor for GEOS-Chem using pygchem (>= 0.3.0 )
         ( Credit: Ben Bovy -  https://github.com/benbovy/PyGChem )
@@ -354,7 +356,6 @@ def get_GC_output( wd, vars=None, species=None, category=None,
         var = category+'__'+species
         vars=  [ var.replace('-', '_').replace('$', 'S') ]
 
-        pass
     else:
         # Get default settings for reader
         if isinstance(vars, type(None)):
@@ -364,27 +365,62 @@ def get_GC_output( wd, vars=None, species=None, category=None,
     if wd[-1] != '/':
         wd +=  '/'
 
-    # Get files in dir ( more than one? )
-    fns = sorted( glob.glob( wd+ '*ctm*' ) )
-    if len(fns) == 0:
-        fns = sorted( glob.glob(wd + '*trac_avg*') )
-    if debug:
-        print fns
+    # Work with NetCDF. Convert ctm.bpch to NetCDF if not already done.
+    if use_NetCDF:
 
-    # Load files into Iris Cube
-    cubes = datasets.load( fns, vars )
+            # Check for compiled NetCDF file
+            # If not found, create NetCDF file from ctm.bpch files                
+            fname = wd+ '/ctm.nc'
+            import os.path
+            if not os.path.isfile(fname):
+                from bpch2netCDF  import convert_to_netCDF
+                convert_to_netCDF( wd )
 
-    # If no data extracted, print our variables
-    try:
-        [ i[0].data for i in cubes ]
-    except:
-        print datasets.load( fns[0] )
-        print 'WARNING: no vars found for >{}<'.format( ','.join(vars) )
-        sys.exit( 0 )
+            # "open" NetCDF + extract requested variables as numpy arr.
+            with Dataset( fname, 'r' ) as rootgrp:
+                arr = [ np.array(rootgrp[i]) for i in vars ]  
+
+    # Use Iris cubes via PyGChem to extract ctm.bpch files 
+    else:
+
+        # Get files in dir ( more than one? )
+        fns = sorted( glob.glob( wd+ '*ctm*' ) )
+        if len(fns) == 0:
+            fns = glob.glob(wd + '*trac_avg*')
+            print 'using *trac_avg* bpch name convention: ', fns
+
+        if debug:
+            print fns
+
+        # Load files into Iris Cube
+        print 'WARNING - with ctm.bpch files, all variables are loaded.'+\
+            'Convert to NetCDF or HDF for speed up or use use_NetCDF=True)'
+        cubes = datasets.load( fns, vars )
+
+        # If no data extracted, print our variables
+        try:
+            [ i[0].data for i in cubes ]
+        except:
+            print datasets.load( fns[0] )
+            print 'WARNING: no vars found for >{}<'.format( ','.join(vars) )
+            sys.exit( 0 )
         
-    # Temporary fix for back compatibility: 
-    # Just extract as numpy 
+        # Temporary fix for back compatibility: 
+        # Just extract as numpy 
 
+        if not r_cubes:
+    
+            # Extract data
+            try:
+                arr = [ cubes[i].data for i in range( len(vars) ) ]
+            except:
+                print 'WARNING: length of extracted data array < vars'
+                print 'vars: >{}<'.format( ','.join(vars) )
+                sys.exit( 0 )
+
+            del cubes
+
+    # Process extracted data to gamap GC format and return as numpy 
     if not r_cubes:
 
         # Extract data

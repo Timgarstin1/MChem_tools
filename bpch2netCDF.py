@@ -11,7 +11,11 @@ def convert_to_netCDF(folder='none',filename='ctm.nc'):
    from bpch2netCDF import get_folder
    folder = get_folder(folder)
 
-   bpch_files = folder + '/*.ctm.bpch'
+   # Get ctm.bpch ( inc. if named *trac_avg* )
+   import glob
+   bpch_files = glob.glob( folder + '/*ctm.bpch' )
+   if len(bpch_files) == 0:
+      bpch_files = glob.glob( folder + '/*trac_avg*' )
 
    # Open the bpch files
    try:
