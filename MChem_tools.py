@@ -357,7 +357,7 @@ def get_GC_output( wd, vars=None, species=None, category=None,
         vars=  [ var.replace('-', '_').replace('$', 'S') ]
 
     else:
-        # Get default settings for reader
+        # Get default settings for reader ( O3 Conc )
         if isinstance(vars, type(None)):
             vars = [ 'IJ_AVG_S__O3'  ]
 
@@ -367,18 +367,21 @@ def get_GC_output( wd, vars=None, species=None, category=None,
 
     # Work with NetCDF. Convert ctm.bpch to NetCDF if not already done.
     if use_NetCDF:
+        
+        # Check for compiled NetCDF file
+        # If not found, create NetCDF file from ctm.bpch files                
+        fname = wd+ '/ctm.nc'
+        import os.path
+        if not os.path.isfile(fname):
+            from bpch2netCDF  import convert_to_netCDF
+            convert_to_netCDF( wd )
 
-            # Check for compiled NetCDF file
-            # If not found, create NetCDF file from ctm.bpch files                
-            fname = wd+ '/ctm.nc'
-            import os.path
-            if not os.path.isfile(fname):
-                from bpch2netCDF  import convert_to_netCDF
-                convert_to_netCDF( wd )
+        # "open" NetCDF + extract requested variables as numpy arr.
+        with Dataset( fname, 'r' ) as rootgrp:
+            arr = [ np.array(rootgrp[i]) for i in vars ]  
 
-            # "open" NetCDF + extract requested variables as numpy arr.
-            with Dataset( fname, 'r' ) as rootgrp:
-                arr = [ np.array(rootgrp[i]) for i in vars ]  
+        print ' CORRECT!'
+
 
     # Use Iris cubes via PyGChem to extract ctm.bpch files 
     else:
@@ -422,14 +425,6 @@ def get_GC_output( wd, vars=None, species=None, category=None,
 
     # Process extracted data to gamap GC format and return as numpy 
     if not r_cubes:
-
-        # Extract data
-        try:
-            arr = [ cubes[i].data for i in range( len(vars) ) ]
-        except:
-            print 'WARNING: length of extracted data array < vars'
-            print 'vars: >{}<'.format( ','.join(vars) )
-            sys.exit( 0 )
 
         # Limit to GEOS-Chem "chemical troposphere'
         if trop_limit:
