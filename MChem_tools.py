@@ -65,7 +65,11 @@ import numpy as np
 # 4.99 - Reference data (from GChem - credit: Gerrit Kuhlmann)
 
 # --------------- ------------- ------------- ------------- ------------- 
-# ---- Section 1 ----- Core Programmes
+# ---- Section 5 ----- Core Programmes
+# 4.01 - Planeflight dat file generation... 
+# 4.02 -  
+
+
 
 # --------------                                                                                 
 # 1.01 - open ctm.bpch using PyGChem <= REDUNDENT
@@ -380,9 +384,6 @@ def get_GC_output( wd, vars=None, species=None, category=None,
         with Dataset( fname, 'r' ) as rootgrp:
             arr = [ np.array(rootgrp[i]) for i in vars ]  
 
-        print ' CORRECT!'
-
-
     # Use Iris cubes via PyGChem to extract ctm.bpch files 
     else:
 
@@ -499,12 +500,48 @@ def get_gc_lat(lat, res='4x5',debug=False):
 # ----
 # 2.04 - Get gc datetime
 # -----
-def get_gc_datetime(ctm_f, spec='O3', cat='IJ-AVG-$', debug=False):
-    d  = ctm_f.filter(name=spec, category=cat)
-    if debug:
-        print '>'*30,d
-        print '>.'*15, sorted(d)
-    return [ i.times for i in d ]
+def get_gc_datetime(ctm_f=None, wd=None, spec='O3', cat='IJ-AVG-$', debug=False):
+
+    # REDUNDENT - retain for backwards compatibility
+    if pygchem.__version__ == '0.2.0':
+        d  = ctm_f.filter(name=spec, category=cat)
+        if debug:
+            print '>'*30,d
+            print '>.'*15, sorted(d)
+        return [ i.times for i in d ]
+
+    # Extract datetime from cube/saved NetCDF
+    else:
+        if debug:
+            print  '>'*5, wd, glob.glob( wd+ '/*ctm*' )
+
+        # create NetCDf if not created.
+        fname = wd+ '/ctm.nc'
+        if not os.path.isfile(fname):
+            from bpch2netCDF  import convert_to_netCDF
+            convert_to_netCDF( wd )
+
+        # "open" NetCDF + extract time
+        with Dataset( fname, 'r' ) as rootgrp:
+            dates = rootgrp['time']
+            print dates, dates.units
+            # Pull out units from cube, default is 'hours since 
+            # 1985-01-01 00:00:00'
+            starttime = time.strptime( str(dates.units),\
+                    'hours since %Y-%m-%d %H:%M:%S' )
+            starttime = time2datetime( [starttime] )[0]
+            dates = np.array(dates) 
+
+        if debug:
+            print starttime
+        
+        # convert to date time
+        dates = [ add_hrs( starttime, i ) for i in dates ]
+        if debug:
+            print dates
+        
+        # return datetime objects
+        return dates
 
 # -------------- 
 # 2.05 - get_gc_alt  ( KM => box num )   
@@ -738,7 +775,13 @@ def get_dims4res(res=None, r_dims=False, invert=True, trop_limit=False):
 # --------
 def diagnosticname_gamap2iris( x  ):
     d={
-    "IJ-AVG-$": 'IJ_AVG_S'
+    "IJ-AVG-$": 'IJ_AVG_S', 
+    "BXHGHT-$": 'BXHEIGHT', 
+    "PORL-L=$":'PORL_L_S__',
+    'DAO-3D-$':'DAO_3D_S__',
+    'DAO-FLDS' :'DAO_FLDS__',
+    'DRYD-FLX': 'DRYD_FLX__',
+    'CHEM-L=$':'CHEM_L_S__'
     }
     return d[x]
 
