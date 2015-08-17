@@ -99,6 +99,9 @@ def get_gc_data_np(ctm_f, species,category="IJ-AVG-$", debug=False):
             print 'np_scalar' , type(np_scalar), len(np_scalar), \
                 np_scalar.shape, 'scalar', type(scalar), len(scalar), \
                 scalar.shape
+    if len( diagnostics ) == 0:
+        print 'WARNING, no diagnostics found! - for: ', species, category
+
     return np_scalar
 
 # --------------
