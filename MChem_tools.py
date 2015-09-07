@@ -750,7 +750,7 @@ def get_latlonalt4res(res='4x5', centre=True, hPa=False, nest=None, \
         return lon, lat, alt
 
     # Return values from gchemgrid
-    d = gchemgrid(return_dict=True)
+    d = gchemgrid(rtn_dict=True)
     if debug:
         print lon, lat, alt
     return  [ d[i] for i in lon, lat, alt ]
@@ -850,7 +850,7 @@ def get_unit_scaling( units ):
 #This module contains (some) grid coordinates used with GEOS-Chem as numpy
 #arrays
 
-def gchemgrid(input=None, return_dict=False, debug=False):
+def gchemgrid(input=None, rtn_dict=False, debug=False):
     d = {
     # 4x5
     'c_lon_4x5' : np.arange(-180, 175+5, 5) ,
@@ -999,7 +999,7 @@ def gchemgrid(input=None, return_dict=False, debug=False):
     if (debug):
         print 'gchemgrid called'
 
-    if return_dict:
+    if rtn_dict:
         return d
     else:
         return d[input]
