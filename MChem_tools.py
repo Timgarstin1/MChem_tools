@@ -70,7 +70,6 @@ import numpy as np
 # 4.02 -  
 
 
-
 # --------------                                                                                 
 # 1.01 - open ctm.bpch using PyGChem <= REDUNDENT
 # --------------                                                                                
@@ -232,25 +231,31 @@ def process_files_to_read(files, location, big, names, debug=True):
 def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot_all_data=False,debug=True, **kwargs):
     print 'readfile called'
     big, names = [],[]
+
     # sort for choosen years/months
     for files in filename:
-             # loop through list on choosen years
+
+        # loop through list on choosen years
         if (not plot_all_data):
             lll = 0
             for year in range(len(years_to_use)):
                 if (("{0}".format(years_to_use[year])) in (files)) :
+
                     # is it not the last year specificied?
                     if (debug):
                         print 'years_to_use[year]', years_to_use[year], \
                             'years_to_use[-1]', years_to_use[-1]
                     if (not (years_to_use[year] == years_to_use[-1])):
+
                         # just read all years upto point uptyo final year
                         big, names=process_files_to_read(files, location,\
                             big, names)
                         print 'i got to line 91'
+
                     # If last year selected, then retrieve only 
                     # given months & days
                     if (years_to_use[year] == years_to_use[-1]):
+
                         # Plot months exceot last one
                         for month in range(len(months_to_use)):                                                                                                  
                             if (debug):
@@ -270,6 +275,7 @@ def readfile(filename, location,  years_to_use, months_to_use, days_to_use, plot
                                      'in', len(months_to_use),  'year', year, \
                                      'in' , len(years_to_use)
                                 if (months_to_use[month] == months_to_use[-1]):
+
                                     # For last month, plot days upto last day
                                     for day in range(len(days_to_use)):                                                                                          
                                         if (("{0}{1}{2}".format( \
@@ -1003,4 +1009,3 @@ def gchemgrid(input=None, rtn_dict=False, debug=False):
         return d
     else:
         return d[input]
-

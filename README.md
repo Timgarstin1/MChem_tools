@@ -25,7 +25,6 @@ Module containing functions for programmes above
 
 
 
-
 Requires:
 
 PyGChem: https://github.com/benbovy/PYGChem
@@ -38,10 +37,10 @@ Notes for use:
 To be able to access these modules from any place, add the following to your $HOME/.bashrc file:
 Where MChem_tools is the location you downloaded the MChem_tools folder.
 
-# Add MChem_tools
+To add MChem_tools to python path, add the line below to bashrc
 export PYTHONPATH=${PYTHONPATH}:$HOME/MChem_tools
 
 Monthly Run
 ===========
 
-Script to split GEOS-Chem run into monthly jobs is in directory 'monthly_run'. See speereate README in dricetory for more details.
+Script to split GEOS-Chem run into monthly jobs is in directory 'monthly_run'. See sepereate README in dricetory for more details.
