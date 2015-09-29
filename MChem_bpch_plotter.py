@@ -7,7 +7,7 @@ import sys
 # Setup, choose species
 species  = 'O3'#'CO2'
 RMM_species = 16.*3.
-res = # ( e.g. '4x5', '2x2.5', '0.5x0.666', '0.25x0.3125'  )
+res = '0.25x0.3125' # ( e.g. '4x5', '2x2.5', '0.5x0.666', '0.25x0.3125'  )
 unit, scale = tra_unit( species, scale=True)
 
 # debug/print verbose output?
