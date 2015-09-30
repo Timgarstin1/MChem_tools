@@ -7,7 +7,7 @@ import sys
 # Setup, choose species
 species  = 'O3'#'CO2'
 RMM_species = 16.*3.
-res = '0.25x0.3125' # ( e.g. '4x5', '2x2.5', '0.5x0.666', '0.25x0.3125'  )
+res = '4x5' # ( e.g. '4x5', '2x2.5', '0.5x0.666', '0.25x0.3125'  )
 unit, scale = tra_unit( species, scale=True)
 
 # debug/print verbose output?
@@ -29,10 +29,14 @@ print mixing_ratio.shape
 
 # Get data to calculate burden
 if calc_burden:
+
+    # Get air mass as numpy array
     air_mass = get_GC_output( wd, vars=['BXHGHT_S__AD'], \
                                   trop_limit=trop_limit )
+    # get time in troposphere as fraction from ctm.bpchh diagnostics
     time_in_trop = get_GC_output( wd, vars=['TIME_TPS__TIMETROP'],
                                   trop_limit=trop_limit )
+    # print shapes of array to screen
     print [i.shape for i in mixing_ratio, air_mass, time_in_trop ]
 
     # calc the total & mean mass of a speices - select data you want to calc & print
@@ -63,4 +67,6 @@ print mixing_ratio.shape, res
 
 # plot surface
 plt, cb = map_plot( mixing_ratio, species, unit, res=res, debug=debug )
+
+# Show plot
 plt.show()

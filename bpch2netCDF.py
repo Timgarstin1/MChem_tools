@@ -1,10 +1,10 @@
 #!/usr/bin/python
+""" This script analysis a folder containing bpch files and outputs the results
+        in a single netCDF file in the folder.
 
-# This script analysis a folder containing bpch files and outputs the results in a single netCDF file in the folder.
-
-# This allows for significantly faster and easier input of data, and more common anaylsis techniques like pandas without extra post processing.
-
-# 
+         This allows for significantly faster and easier input of data, 
+         and more common anaylsis techniques like pandas without extra 
+         post processing. """
 
 def convert_to_netCDF(folder='none',filename='ctm.nc'):
 

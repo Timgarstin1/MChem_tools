@@ -1,7 +1,7 @@
-from funcs4plotting import get_input_vars
-from funcs_vars import get_dir
+from AC_tools.funcs4plotting import get_input_vars
+from AC_tools.funcs_vars import get_dir
 from netCDF4 import Dataset
-from funcs4pf import get_pf_headers, pf_csv2pandas
+from AC_tools.funcs4pf import get_pf_headers, pf_csv2pandas
 import glob
 import time 
 import os.path

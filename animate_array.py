@@ -53,7 +53,7 @@ def get_data_dates( spec='O3', dates_variable='time', \
     from pandas import DataFrame
     from netCDF4 import Dataset
     import datetime
-    from funcs_vars import get_dir
+    from AC_tools.funcs_vars import get_dir
 
     # Set file to use
     wd = get_dir('npwd')
@@ -116,8 +116,8 @@ def get_data_dates( spec='O3', dates_variable='time', \
 def get_run_info( spec='O3', res='0.25x0.3125', region='EU', fname='', \
             scale=1, pcent=False ):
     """ get descriptive variables for run period ( e.g. res ) """
-    from funcs4core import get_latlonalt4res
-    from funcs_vars import tra_unit, latex_spec_name
+    from AC_tools.funcs4core import get_latlonalt4res
+    from AC_tools.funcs_vars import tra_unit, latex_spec_name
     
     # Set variables (e.g. res) or automation of variable setting here
 #    res = get_run_descriptors()
@@ -157,7 +157,7 @@ def setup_figure_ascetics(  dates, f_size=10, title=None, cmap=None, \
             format='%.0f', extend='neither', arr=None, fixcb=None, debug=False):
     """ Add colorbar, logos and titles to figure """
 
-    from funcs4plotting import add_logos_NCAS_york_bottom, mk_cb
+    from AC_tools.funcs4plotting import add_logos_NCAS_york_bottom, mk_cb
 
     # --- Get vars
     # add title and logos for NCAS/NERC
@@ -182,7 +182,7 @@ def setup_plot2animate( arr, fig=None, ax=None, lat=None, lon=None, \
         everyother=1, interval=1, resolution='f', drawcountries=True, \
         cnorm = None, clevs=None, fixcb=None, debug=False ):
 
-    from funcs4plotting import get_basemap, get_colormap
+    from AC_tools.funcs4plotting import get_basemap, get_colormap
 
     # --- settings
     plt.ioff() # turn off interactive plotting
