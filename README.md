@@ -1,32 +1,33 @@
 MChem_tools
 ===========
 
-Tools for MJE MChems
+Example analysis of chemical transport model (CTM) output for
+ working with GEOS-Chem ctm.bpch/pf. 
+
 
 - MChem_bpch_plotter.py
-
-GEOS-Chem ctm.bpch plotter using PyGChem 
+Plots up GEOS-Chem ctm.bpch as 2D maps using PyGChem.
+This programme can alsoo calculate tropospheric burdens.  
 
 - MChem_planeflight_plotter.py
-
-GEOS-Chem planeflight output plotter 
+Plots up GEOS-Chem planeflight output as timeseries plots.
 
 - bpch2netCDF.py
-
-Tool for converting multiple bpch files to a single netCDF 
+Programme to convert multiple bpch files to a single netCDF.  This is 
+portable and can be called as post run script or directly at command line.
 
 - Prod_Loss_4_spec.py 
-
-GEOS-Chem smvgear analyser of prod/loss for reaction tag or "spec" 
+Tools to allow for automated analysis of prod/loss species in by reading
+globchem.dat and smv2.log files. This allows for debugging/checking of 
+tagged simulations
 
 - MChem_tools.py
-
-Module containing functions for programmes above 
-
+Module containing functions for programmes above. Note: this module 
+now mostly just imports from the AC_tools submodule and will be 
+removed in the near future. 
 
 
 Requires:
-
 PyGChem: https://github.com/benbovy/PYGChem
 
 Scientific python modules e.g. Annoconda ( https://store.continuum.io/cshop/anaconda/  )
@@ -39,6 +40,14 @@ Where MChem_tools is the location you downloaded the MChem_tools folder.
 
 To add MChem_tools to python path, add the line below to bashrc
 export PYTHONPATH=${PYTHONPATH}:$HOME/MChem_tools
+
+This module and the submodule (AC_tools ) it uses are setup to be portable, 
+so when using functions contained within these modules a direct import into 
+a new script would be recommended.
+e.g. 
+from AC_tools.funcs4tim import *
+or
+from MChem_tools.MChem_tools import *
 
 Monthly Run
 ===========

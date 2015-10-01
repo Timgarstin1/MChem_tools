@@ -1,3 +1,7 @@
+""" Note: this module now essentially just imports from AC_tools.
+
+    remaining Prod/Loss functions will also be updated to use 
+    AC_tools in future, making this module redundant. """
 # ------------  MChem Tools - tms -------------------------------------
 # --------------  
 # ---- Section 0 ----- Modules required
@@ -381,7 +385,7 @@ from AC_tools.funcs_vars import diagnosticname_gamap2iris
 from AC_tools.funcs_vars import tra_unit
 
 # --------------
-# 4.99 - Reference data, (inc. grid data) from GChem - credit: GK (Gerrit Kuhlmann )
+# 4.99 - Reference data, (inc. grid data) from GChem 
 # ------------- 
 """ Updated to dictionary from gchemgrid (credit: Gerrit Kuhlmann ) with 
      addition grid adds """       
