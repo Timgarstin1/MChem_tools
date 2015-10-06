@@ -35,6 +35,10 @@ Scientific python modules e.g. Annoconda ( https://store.continuum.io/cshop/anac
 
 Notes for use:
 
+As this repository uses a submodule (AC_tools), please recursively clone URL: 
+
+git clone --recursive https://github.com/tsherwen/MChem_tools.git
+
 To be able to access these modules from any place, add the following to your $HOME/.bashrc file:
 Where MChem_tools is the location you downloaded the MChem_tools folder.
 
