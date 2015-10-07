@@ -7,8 +7,8 @@ import datetime
 
 debug=True
 
-def main( spec='O3' , pcent=False, fixcb=None, limit_by_dates=False, 
-        debug=False ):
+def main( spec='NO' , pcent=False, fixcb=None, limit_by_dates=False, \
+        extend='neither', debug=False ):
     """ Extract data array from given location and make Animation"""
 
     # Get data in array ( time, lat, lon ) and dates (datetime.datetime )
@@ -18,15 +18,15 @@ def main( spec='O3' , pcent=False, fixcb=None, limit_by_dates=False,
         print [ (i[:5], i.shape ) for i in arr, dates]
     
     # Get titles and other varibles for run (e.g. res )
-    lat, lon, units, fname, res, title, scale = get_run_info()
+    lat, lon, units, fname, res, title, scale = get_run_info( spec=spec )
     arr = arr*scale
 
     # Setup figure and axis
     fig, ax = setup_figure_and_axis( )
 
     # manual limit colormap ( colorbar )
-    fixcb = np.array([ 0, 100])
-    extend ='both'
+#    fixcb = np.array([ 0, 100])
+#    extend ='both'
     
     # Setup first frame for re-use ( inc. basemap ) and get key variables 
     cmap, specplt, clevs, cnorm, minc, maxc, m = setup_plot2animate( arr,\
@@ -41,12 +41,12 @@ def main( spec='O3' , pcent=False, fixcb=None, limit_by_dates=False,
     # animate the array and save as 
     animate_array( arr, dates, specplt, clevs=clevs, cnorm=cnorm, \
         cmap=cmap, debug=debug, fig=fig, m=m, lon=lon, lat=lat, \
-        fname=fname )
+        spec=spec, fname=fname )
 
 def get_data_dates( spec='O3', dates_variable='time', \
             fill_invalid_with_mean=True, limit_by_dates=False, 
             sdate=datetime.datetime(2005, 01, 01), 
-            edate=datetime.datetime(2005, 01, 02), debug=False ):
+            edate=datetime.datetime(2005, 01, 07), debug=False ):
     """ Extracts dates and data from a given location """
 
     import numpy as np
@@ -58,10 +58,9 @@ def get_data_dates( spec='O3', dates_variable='time', \
     # Set file to use
     wd = get_dir('npwd')
 #    wd = '/work/home/ts551/temp/'
-#    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run.0.25x0.3125.2012.1week.sucess_3D.nc'
+    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run.0.25x0.3125.2012.1week.sucess_3D.nc'
 
-#    f='pf_iGEOSChem_1.7_v10_G5_EU_run_3D.nc'
-    f= 'test_4_timsteps_pf_iGEOSChem_1.7_v10_G5_EU_run_3D.nc'
+#    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run_3D.nc'
     print wd + f
     # Extract data
     with Dataset( wd+f , 'r' ) as rootgrp:
@@ -77,10 +76,6 @@ def get_data_dates( spec='O3', dates_variable='time', \
 
         # get dates
         dates = np.ma.array( rootgrp.variables[ dates_variable ]   )
-
-    arr = arr[:24, ... ]
-    dates = dates[:24 ]
-
 
     if debug:
         print [ ( type( i ), i.shape ) for i in arr, dates ]
@@ -98,14 +93,28 @@ def get_data_dates( spec='O3', dates_variable='time', \
     if debug:
         print [ i.shape for i in arr, dates ]
     
+    print edate, sdate, dates[0]
+    print [ type(i) for i in edate, sdate, dates[0] ]
+    
+    print dates > sdate 
+    print dates < edate 
+    
+#    print dates[ np.where( (dates >= sdate)  ) ] 
+    
     # Limit to given dates ( e.g. 1st month 2005)
     if limit_by_dates:
-        dates = dates[ np.where( dates > sdate ) ] 
+        dates = dates[ np.where( dates >= sdate ) ] 
+        print [i.shape for i in arr, dates ]
         dates = dates[ np.where( dates < edate ) ] 
-        dates = arr[ np.where( dates > sdate ), ... ] 
-        dates = arr[ np.where( dates < edate ), ... ] 
-
-    # The corner point is a NaN for 0.25 output. 
+        print [i.shape for i in arr, dates ]
+        # Kludge, remove 1st dimension added by method.  <= improve this. 
+        arr = arr[ np.where( dates >= sdate ), ... ][0,...] 
+        print [i.shape for i in arr, dates ]
+        arr = arr[ np.where( dates < edate ), ... ][0,...] 
+        print [i.shape for i in arr, dates ]
+        
+        
+    # The corner point is a NaN for 0.25 output.  <= improve this. 
     # Set this ( not visible on the plot window ) to mean to allow for save
     if fill_invalid_with_mean:
         np.ma.set_fill_value(arr, arr.mean())
@@ -121,7 +130,7 @@ def get_run_info( spec='O3', res='0.25x0.3125', region='EU', fname='', \
     
     # Set variables (e.g. res) or automation of variable setting here
 #    res = get_run_descriptors()
-    res='0.5x0.666'
+#    res='0.5x0.666'
     
     # Get lat and lon of GC grid for given resolution
     lon, lat, NIU = get_latlonalt4res( res=res )
@@ -157,12 +166,13 @@ def setup_figure_ascetics(  dates, f_size=10, title=None, cmap=None, \
             format='%.0f', extend='neither', arr=None, fixcb=None, debug=False):
     """ Add colorbar, logos and titles to figure """
 
-    from AC_tools.funcs4plotting import add_logos_NCAS_york_bottom, mk_cb
+    # if on Univeristy of York/NCAS servers, add logos
+    if platform.platform() == 'Linux-3.0.101-0.47.52-default-x86_64-with-SuSE-11-x86_64':
+        from funcs4plotting_special import add_logos_NCAS_york_bottom, mk_cb
 
-    # --- Get vars
-    # add title and logos for NCAS/NERC
-    fig = add_logos_NCAS_york_bottom( fig)
-    fig.suptitle( title, fontsize=f_size*2, x=.55 , y=.95  )
+        # add title and logos for NCAS/NERC
+        fig = add_logos_NCAS_york_bottom( fig)
+        fig.suptitle( title, fontsize=f_size*2, x=.55 , y=.95  )
 
     # Set min and max of colorbar if not given
     if isinstance( fixcb, type(None) ):
@@ -182,7 +192,7 @@ def setup_plot2animate( arr, fig=None, ax=None, lat=None, lon=None, \
         everyother=1, interval=1, resolution='f', drawcountries=True, \
         cnorm = None, clevs=None, fixcb=None, debug=False ):
 
-    from AC_tools.funcs4plotting import get_basemap, get_colormap
+    from funcs4plotting_special import get_basemap, get_colormap
 
     # --- settings
     plt.ioff() # turn off interactive plotting
@@ -196,7 +206,7 @@ def setup_plot2animate( arr, fig=None, ax=None, lat=None, lon=None, \
     print 3, 'detail on output: ', [ [ np.ma.min(i), np.ma.max(i), \
         np.ma.mean(i), type(i),i.shape ] for i in [arr] ]
 
-    # --- Setup basemap
+    # Setup basemap
     m = get_basemap( lat=lat, lon=lon, resolution=resolution, res=res,\
         everyother=everyother, interval=interval, f_size=f_size, \
         drawcountries=drawcountries )
