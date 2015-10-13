@@ -38,7 +38,7 @@ def main( spec='NO' , pcent=False, fixcb=None, limit_by_dates=False, \
         minc=minc, units=units, fig=fig, title=title, extend=extend, \
         arr=arr, fixcb=fixcb, debug=debug)
     
-    # animate the array and save as 
+    # animate the array and save as mp4
     animate_array( arr, dates, specplt, clevs=clevs, cnorm=cnorm, \
         cmap=cmap, debug=debug, fig=fig, m=m, lon=lon, lat=lat, \
         spec=spec, fname=fname )
@@ -47,7 +47,9 @@ def get_data_dates( spec='O3', dates_variable='time', \
             fill_invalid_with_mean=True, limit_by_dates=False, 
             sdate=datetime.datetime(2005, 01, 01), 
             edate=datetime.datetime(2005, 01, 07), debug=False ):
-    """ Extracts dates and data from a given location """
+    """ Extracts dates and data from a given location (from NetCDF file) 
+        Adapt/swap this function for another data extract.
+        NOTE: output must be of numpy array type and dates as datetime """
 
     import numpy as np
     from pandas import DataFrame
@@ -91,15 +93,12 @@ def get_data_dates( spec='O3', dates_variable='time', \
     dates = np.array(dates )
 
     if debug:
-        print [ i.shape for i in arr, dates ]
-    
-    print edate, sdate, dates[0]
-    print [ type(i) for i in edate, sdate, dates[0] ]
-    
-    print dates > sdate 
-    print dates < edate 
-    
-#    print dates[ np.where( (dates >= sdate)  ) ] 
+        print [ i.shape for i in arr, dates ]    
+        print edate, sdate, dates[0]
+        print [ type(i) for i in edate, sdate, dates[0] ]
+        print dates > sdate
+        print dates < edate 
+#        print dates[ np.where( (dates >= sdate)  ) ] 
     
     # Limit to given dates ( e.g. 1st month 2005)
     if limit_by_dates:
