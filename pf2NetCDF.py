@@ -1,4 +1,4 @@
-from AC_tools.funcs4plotting import get_input_vars
+from funcs4plotting_special import get_input_vars
 from AC_tools.funcs_vars import get_dir
 from netCDF4 import Dataset
 from AC_tools.funcs4pf import get_pf_headers, pf_csv2pandas
@@ -11,13 +11,11 @@ from pandas import DataFrame
 # ---  Master  settings for main call
 # Verbose/debug output? (set  debug=True)
 debug=True
-
 # Use planeflight files ending with ".out", which have been renumerated
 # (Fortran string formatting cuts off output > 5 digits )
 renumerated= True # Use 
-
 # make 3D gridded output netCDF?
-GRD_input_3D=True
+GRD_input_3D=True#True
 
 def main( wd, vars=None, npwd=None, debug=False, \
           GRD_input_3D=False, renumerated=False ):
@@ -31,11 +29,12 @@ def main( wd, vars=None, npwd=None, debug=False, \
     """
 
     # Get save directory and set output NC name
+    import os
     if not isinstance(npwd, str ):
         npwd = get_dir('npwd')
     out_nc = npwd+ 'pf_{}_{}.nc'.format( wd.split('/')[-3], \
         wd.split('/')[-2], wd.split('/')[-1]  )
-    print out_nc
+    print 'Atempting to append/create file (which exists?:{}): {}'.format( os.path.isfile( out_nc ), out_nc )
 
     # Get pf files
     if not os.path.isfile( out_nc ):
@@ -93,8 +92,8 @@ def mk_NetCDF_of_pf_files( files, ncfilename=None, debug=False ):
             # loop and create variables for each column  (exc. last )
             if debug:
                 print vars
-            for var in vars:
-                ncfile.createVariable( var, var2type(var), ('POINT') )
+            [ ncfile.createVariable( var, var2type(var), ('POINT') ) \
+                    for var in vars ]
 
             # close the file 
             ncfile.close()
@@ -115,10 +114,9 @@ def mk_NetCDF_of_pf_files( files, ncfilename=None, debug=False ):
             ncfile.variables[ var ][npoint:npoint+dim_len] = df[var].values
         
         # Tidy up and count    
-        del df 
         npoint += dim_len
-
-    ncfile.close()
+        del df 
+        ncfile.close()        
             
 def var2type( var, debug=False ): 
     """ Insure that strings are i8 type, add additions to list

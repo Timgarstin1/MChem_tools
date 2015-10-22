@@ -6,6 +6,7 @@ import gc
 import datetime
 
 debug=True
+specs = [ 'O3', 'NO2' ]
 
 def main( spec='NO' , pcent=False, fixcb=None, limit_by_dates=False, \
         extend='neither', debug=False ):
@@ -38,7 +39,7 @@ def main( spec='NO' , pcent=False, fixcb=None, limit_by_dates=False, \
         minc=minc, units=units, fig=fig, title=title, extend=extend, \
         arr=arr, fixcb=fixcb, debug=debug)
     
-    # animate the array and save as mp4
+    # animate the array and save as 
     animate_array( arr, dates, specplt, clevs=clevs, cnorm=cnorm, \
         cmap=cmap, debug=debug, fig=fig, m=m, lon=lon, lat=lat, \
         spec=spec, fname=fname )
@@ -47,9 +48,7 @@ def get_data_dates( spec='O3', dates_variable='time', \
             fill_invalid_with_mean=True, limit_by_dates=False, 
             sdate=datetime.datetime(2005, 01, 01), 
             edate=datetime.datetime(2005, 01, 07), debug=False ):
-    """ Extracts dates and data from a given location (from NetCDF file) 
-        Adapt/swap this function for another data extract.
-        NOTE: output must be of numpy array type and dates as datetime """
+    """ Extracts dates and data from a given location """
 
     import numpy as np
     from pandas import DataFrame
@@ -60,8 +59,8 @@ def get_data_dates( spec='O3', dates_variable='time', \
     # Set file to use
     wd = get_dir('npwd')
 #    wd = '/work/home/ts551/temp/'
-    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run.0.25x0.3125.2012.1week.sucess_3D.nc'
-
+#    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run.0.25x0.3125.2012.1week.sucess_3D.nc'
+    f='pf_iGEOSChem_1.7_v10_G5_EU_run.0.25x0.3125.2015.II.spun.up_3D.nc'
 #    f= 'pf_iGEOSChem_1.7_v10_G5_EU_run_3D.nc'
     print wd + f
     # Extract data
@@ -93,12 +92,15 @@ def get_data_dates( spec='O3', dates_variable='time', \
     dates = np.array(dates )
 
     if debug:
-        print [ i.shape for i in arr, dates ]    
-        print edate, sdate, dates[0]
-        print [ type(i) for i in edate, sdate, dates[0] ]
-        print dates > sdate
-        print dates < edate 
-#        print dates[ np.where( (dates >= sdate)  ) ] 
+        print [ i.shape for i in arr, dates ]
+    
+    print edate, sdate, dates[0]
+    print [ type(i) for i in edate, sdate, dates[0] ]
+    
+    print dates > sdate 
+    print dates < edate 
+    
+#    print dates[ np.where( (dates >= sdate)  ) ] 
     
     # Limit to given dates ( e.g. 1st month 2005)
     if limit_by_dates:
@@ -166,6 +168,7 @@ def setup_figure_ascetics(  dates, f_size=10, title=None, cmap=None, \
     """ Add colorbar, logos and titles to figure """
 
     # if on Univeristy of York/NCAS servers, add logos
+    import platform
     if platform.platform() == 'Linux-3.0.101-0.47.52-default-x86_64-with-SuSE-11-x86_64':
         from funcs4plotting_special import add_logos_NCAS_york_bottom, mk_cb
 
@@ -290,4 +293,5 @@ def animate_array( arr, dates, specplt, spec='O3', min_change=0.5, \
     print 'Video saved & Closed as/at: ', fname
 
 if __name__ == "__main__":
-    main( debug=debug )
+    for spec in specs:
+        main( spec=spec, debug=debug )
