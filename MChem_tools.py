@@ -106,9 +106,11 @@ def map_plot(scalar, species=None, unit=None, res='4x5', **Kwargs):
     x, y = np.meshgrid(lon,lat)
     print len(x), len(y)
 
+    # Add Labels for axis + title  if species provided
     plt.ylabel('Latitude', fontsize = 20)
     plt.xlabel('Longitude',fontsize = 20)
-    plt.title( '{} / {} '.format( latex_spec_name( species ), unit ) )
+    if not isinstance( species, type(None) ):
+        plt.title( '{} / {} '.format( latex_spec_name( species ), unit ) )
 
     # Setup map ("m") using Basemap                                                                                
     m = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
