@@ -13,7 +13,7 @@ from pandas import DataFrame
 debug=True
 # Use planeflight files ending with ".out", which have been renumerated
 # (Fortran string formatting cuts off output > 5 digits )
-renumerated= True # Use 
+renumerated= False#True # Use files suffixed with ".out"
 # make 3D gridded output netCDF?
 GRD_input_3D=True#True
 
