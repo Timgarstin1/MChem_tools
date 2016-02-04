@@ -1,3 +1,6 @@
 [submodule "AC_tools"]
 	path = AC_tools
 	url = https://github.com/tsherwen/AC_tools.git
+[submodule "monthly_run"]
+	path = monthly_run
+	url = https://github.com/bn506/monthly-run.git
