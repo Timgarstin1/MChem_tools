@@ -5,7 +5,11 @@ import numpy as np
 import gc
 import datetime
 
-debug=True
+# ---  Set general output for direct call
+DEBUG=False
+VERBOSE=False
+
+# --- Direct call options settings
 specs = [ 'O3', 'NO2' , 'PAN', 'ALD2' ]
 pcent=True
 ClearFlo_unit=True
@@ -350,6 +354,7 @@ def animate_array( arr, dates, specplt, spec='O3', min_change=0.5, \
 #    del specplt
     
 if __name__ == "__main__":
+    # Loop species and call main driver
     for spec in specs:
         main( spec=spec, pcent=pcent, ClearFlo_unit=ClearFlo_unit, \
-                    debug=debug )
+                  debug=DEBUG, verbose=VERBOSE )
