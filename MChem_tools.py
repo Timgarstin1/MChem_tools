@@ -96,7 +96,7 @@ from AC_tools.funcs4GEOSC import get_air_mass_np
 # 1.04 - plot geos slice                                                                                           
 # -----                                                                                                            
 # <= update to use map_plot from AC_Tools?
-def map_plot(scalar, species=None, unit=None, res='4x5', **Kwargs):
+def basic_map_plot(scalar, species=None, unit=None, res='4x5', **Kwargs):
 
     # Setup slices                                                                                                 
     # Grid/Mesh values for Lat, lon, & alt                                                                         

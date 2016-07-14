@@ -66,7 +66,7 @@ mixing_ratio = np.transpose( mixing_ratio )
 print mixing_ratio.shape, res
 
 # plot surface
-plt, cb = map_plot( mixing_ratio, species, unit, res=res, debug=debug )
+plt, cb = basic_map_plot( mixing_ratio, species, unit, res=res, debug=debug )
 
 # Show plot
 plt.show()
