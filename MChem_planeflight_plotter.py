@@ -18,7 +18,10 @@ except: # Otherwise use path below
     wd    = '<insert GEOS-Chem run direcotory path here>'
     
 # Which species to plot?  (must be in list form) 
-species_to_plot= 'O3'#'ClNO2'#'Cl'
+try:    # chcck if a directory was given ad command line
+    species_to_plot = sys.argv[2]
+except: # Otherwise use path below
+    species_to_plot = 'Cl2' #'O3'#'ClNO2'#'Cl'
 
 # What years, months, days to plot?  (must be in list form) 
 # set day_to_use by adjusting range
@@ -34,6 +37,9 @@ print years_to_use, months_to_use, days_to_use
 locations=['CVO'] 
 print locations
 
+# Model version
+ver='3.0'
+
 # look in the "plane_flight_logs" directory
 wd = wd+ '/plane_flight_logs/plane.log.*'
 #wd = wd+ '/plane.log.*'
@@ -47,7 +53,7 @@ fontsize = 10
 # -------------
 
 # Get species name in TRA_?? (planefligth output) form
-species_to_plot=[ what_species_am_i( species_to_plot, invert=True ) ]
+species_to_plot=[ what_species_am_i( species_to_plot, ver=ver, invert=True ) ]
 
 # setup figure
 fig = plt.figure(figsize=(15,6), dpi=80, facecolor='w', edgecolor='k')
