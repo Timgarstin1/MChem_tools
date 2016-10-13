@@ -1,3 +1,11 @@
+
+
+REDUNDENT. The AC_tools example code held here have been moved to AC_tools' folder of examples/Scripts (https://github.com/tsherwen/AC_tools/Scripts). All (and more) of "MChem_tools" functionality is present in AC_tools.
+
+Please use AC_tools instead of MChem_tools.
+
+This code is no longer maintained. 
+
 MChem_tools
 ===========
 
